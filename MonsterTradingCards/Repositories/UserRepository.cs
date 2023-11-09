@@ -47,9 +47,20 @@ namespace MonsterTradingCards.Repositories
 
         }
 
-        public void Delete(User t)
+        public void Delete(User user)
         {
-            throw new NotImplementedException();
+            using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    command.CommandText = @"DELETE FROM users WHERE id = @id";
+
+                    command.AddParameterWithValue("id", DbType.Int32, user.Id);
+
+                    command.ExecuteNonQuery();
+                }
+            }
         }
 
         public User Get(Guid id)
@@ -95,12 +106,63 @@ namespace MonsterTradingCards.Repositories
 
         public IEnumerable<User> GetAll()
         {
-            throw new NotImplementedException();
+            List<User> result = new List<User>();
+            using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games
+                                        FROM users";
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new User()
+                            {
+                                Id = reader.GetGuid(0),
+                                Username = reader.GetString(1),
+                                Password = reader.GetString(2),
+                                Bio = reader.GetString(3),
+                                Image = reader.GetString(4),
+                                Coins = reader.GetInt32(5),
+                                Elo = reader.GetInt32(6),
+                                PlayedGames = reader.GetInt32(7)
+                            });
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
-        public void Update(User t, string[] parameters)
+        public void Update(User user, string[] parameters)
         {
-            throw new NotImplementedException();
+            if (user.Id == null)
+                throw new ArgumentNullException("Id cannot be null");
+
+            using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    connection.Open();
+                    command.CommandText = @"UPDATE users
+                                            SET " + this.ConvertAttributesToSetSQL(parameters) +
+                                            "WHERE id = @id";
+
+                    command.AddParameterWithValue("id", DbType.Guid, user.Id);
+                    command.AddParameterWithValue("username", DbType.String, user.Username);
+                    command.AddParameterWithValue("password", DbType.String, user.Password);
+                    command.AddParameterWithValue("bio", DbType.String, user.Bio);
+                    command.AddParameterWithValue("image", DbType.String, user.Image);
+
+                    command.AddParameterWithValue("coins", DbType.Int32, user.Coins);
+                    command.AddParameterWithValue("elo", DbType.Int32, user.Elo);
+                    command.AddParameterWithValue("played_games", DbType.Int32, user.PlayedGames);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

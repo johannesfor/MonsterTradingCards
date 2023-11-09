@@ -1,7 +1,9 @@
-﻿using System;
+﻿using MonsterTradingCards.Repositories;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +29,13 @@ namespace MonsterTradingCards
                 value = record.GetInt32(ordinal);
             }
             return value;
+        }
+
+        public static string ConvertAttributesToSetSQL<T>(this IRepository<T> repository, string[] parameters)
+        {
+            StringBuilder sb = new StringBuilder();
+            parameters.ToList().ForEach(parameter => sb.AppendFormat("%s = @%s", parameter));
+            return sb.ToString();
         }
     }
 }
