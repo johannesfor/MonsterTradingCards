@@ -1,5 +1,4 @@
-﻿using FHTW.Swen1.Playground;
-using MonsterTradingCards.Models;
+﻿using MonsterTradingCards.Models;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -33,18 +32,15 @@ namespace MonsterTradingCards.Repositories
                     command.CommandText = @"INSERT INTO users (id, username, password, bio, image, coins, elo, played_games)
                                             VALUES (@fid, @objectId, @shape, @anlName, @bezirk, @spielplatzDetail, @typDetail, @seAnnoCadData)"
                     ;
+                    command.AddParameterWithValue("id", DbType.Guid, user.Id);
+                    command.AddParameterWithValue("username", DbType.String, user.Username);
+                    command.AddParameterWithValue("password", DbType.String, user.Password);
+                    command.AddParameterWithValue("bio", DbType.String, user.Bio);
+                    command.AddParameterWithValue("image", DbType.String, user.Image);
 
-                    command.AddParameterWithValue("fid", DbType.String, point.FId);
-                    command.AddParameterWithValue("objectId", DbType.Int32, point.ObjectId);
-                    command.AddParameterWithValue("shape", DbType.String, point.Shape);
-                    command.AddParameterWithValue("anlName", DbType.String, point.AnlName);
-
-                    // if (point.Bezirk.HasValue)
-                    command.AddParameterWithValue("bezirk", DbType.Int32, point.Bezirk);
-
-                    command.AddParameterWithValue("spielplatzDetail", DbType.String, point.SpielplatzDetail);
-                    command.AddParameterWithValue("typDetail", DbType.String, point.TypDetail);
-                    command.AddParameterWithValue("seAnnoCadData", DbType.String, point.SeAnnoCadData);
+                    command.AddParameterWithValue("coins", DbType.Int32, user.Coins);
+                    command.AddParameterWithValue("elo", DbType.Int32, user.Elo);
+                    command.AddParameterWithValue("played_games", DbType.Int32, user.PlayedGames);
                     command.ExecuteNonQuery();
                 }
             }

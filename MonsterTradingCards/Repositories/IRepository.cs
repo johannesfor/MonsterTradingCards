@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FHTW.Swen1.Playground;
+namespace MonsterTradingCards.Repositories
 
 // Implementation of the Repository Design Pattern
 // Repository overview see: https://dotnettutorials.net/lesson/repository-design-pattern-csharp/
