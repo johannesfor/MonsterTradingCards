@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS package;
 
 create table users (
-	id UUID primary key,
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	username varchar(255),
 	password varchar(255),
 	bio varchar(255),
@@ -17,11 +17,11 @@ create table users (
 );
 
 create table package (
-	id UUID primary key
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4()
 );
 
 create table card (
-	id UUID primary key,
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	name varchar(255),
 	damage integer,
 	element_type integer,
@@ -37,7 +37,7 @@ create table card (
 );
 
 create table marketplace (
-	id UUID primary key,
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	card_id UUID,
 	requirement_card_type integer,
 	requirement_min_damage integer,

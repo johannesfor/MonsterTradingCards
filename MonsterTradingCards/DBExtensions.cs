@@ -1,4 +1,5 @@
-﻿using MonsterTradingCards.Repositories;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using MonsterTradingCards.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -31,11 +32,32 @@ namespace MonsterTradingCards
             return value;
         }
 
+        public static string GetNullableString(this IDataRecord record, int ordinal)
+        {
+            string value = null;
+            if (!record.IsDBNull(ordinal))
+            {
+                value = record.GetString(ordinal);
+            }
+            return value;
+        }
+
         public static string ConvertAttributesToSetSQL<T>(this IRepository<T> repository, string[] parameters)
         {
             StringBuilder sb = new StringBuilder();
             parameters.ToList().ForEach(parameter => sb.AppendFormat("%s = @%s", parameter));
             return sb.ToString();
+        }
+
+        public static string HashPassword(this string str)
+        {
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: str,
+                    salt: Encoding.ASCII.GetBytes("Jf9!87_44/fh"),
+                    prf: KeyDerivationPrf.HMACSHA256,
+                    iterationCount: 100000,
+                    numBytesRequested: 256 / 8));
+            return hashed;
         }
     }
 }

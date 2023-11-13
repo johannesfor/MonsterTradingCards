@@ -1,4 +1,5 @@
-﻿using MonsterTradingCards.Models;
+﻿using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Models;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards.Repositories
 {
-    public class UserRepository : IRepository<User>
+    public class UserRepository : IUserRepository
     {
         private readonly string _connectionString;
 
@@ -30,7 +31,7 @@ namespace MonsterTradingCards.Repositories
                 {
                     connection.Open();
                     command.CommandText = @"INSERT INTO users (id, username, password, bio, image, coins, elo, played_games)
-                                            VALUES (@fid, @objectId, @shape, @anlName, @bezirk, @spielplatzDetail, @typDetail, @seAnnoCadData)"
+                                            VALUES (@id, @username, @password, @bio, @image, @coins, @elo, @played_games)"
                     ;
                     command.AddParameterWithValue("id", DbType.Guid, user.Id);
                     command.AddParameterWithValue("username", DbType.String, user.Username);
@@ -90,8 +91,8 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 Username = reader.GetString(1),
                                 Password = reader.GetString(2),
-                                Bio = reader.GetString(3),
-                                Image = reader.GetString(4),
+                                Bio = reader.GetNullableString(3),
+                                Image = reader.GetNullableString(4),
                                 Coins = reader.GetInt32(5),
                                 Elo = reader.GetInt32(6),
                                 PlayedGames = reader.GetInt32(7)
@@ -124,8 +125,8 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 Username = reader.GetString(1),
                                 Password = reader.GetString(2),
-                                Bio = reader.GetString(3),
-                                Image = reader.GetString(4),
+                                Bio = reader.GetNullableString(3),
+                                Image = reader.GetNullableString(4),
                                 Coins = reader.GetInt32(5),
                                 Elo = reader.GetInt32(6),
                                 PlayedGames = reader.GetInt32(7)
@@ -135,6 +136,46 @@ namespace MonsterTradingCards.Repositories
                 }
             }
             return result;
+        }
+
+        public User GetByUsername(string username)
+        {
+            using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games
+                                        FROM users
+                                        WHERE username = @username";
+
+                    connection.Open();
+
+                    var pFID = command.CreateParameter();
+                    pFID.DbType = DbType.String;
+                    pFID.ParameterName = "username";
+                    pFID.Value = username;
+                    command.Parameters.Add(pFID);
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new User()
+                            {
+                                Id = reader.GetGuid(0),
+                                Username = reader.GetString(1),
+                                Password = reader.GetString(2),
+                                Bio = reader.GetNullableString(3),
+                                Image = reader.GetNullableString(4),
+                                Coins = reader.GetInt32(5),
+                                Elo = reader.GetInt32(6),
+                                PlayedGames = reader.GetInt32(7)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
         }
 
         public void Update(User user, string[] parameters)
