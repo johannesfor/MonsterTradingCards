@@ -20,6 +20,7 @@ using MonsterTradingCards.CAQ.Cards;
 using MonsterTradingCards.CAQ.Deck;
 using Newtonsoft.Json.Linq;
 using MonsterTradingCards.CAQ.Users;
+using MonsterTradingCards.CAQ.Tradings;
 
 namespace MonsterTradingCards
 {
@@ -172,6 +173,16 @@ namespace MonsterTradingCards
                         {
                             mediator.Send(new AquirePackageCommand()).Wait();
                         }
+                        else if(path == "/tradings")
+                        {
+                            Trading trade = JsonConvert.DeserializeObject<Trading>(body);
+                            mediator.Send(new AddTradingCommand() { Trading = trade }).Wait();
+                        }
+                        else if(path.StartsWith("/tradings/"))
+                        {
+                            Guid cardId = JsonConvert.DeserializeObject<Guid>(body);
+                            mediator.Send(new MakeTradeCommand() { CardId = cardId, TradeId = Guid.Parse(path.Split("/")[2]) }).Wait();
+                        }
                         else
                         {
                             //throw Exception because the path is invalid
@@ -211,6 +222,11 @@ namespace MonsterTradingCards
                             IEnumerable<Tuple<string, int>> scoreboard = mediator.Send(new GetScoreboardQuery()).Result;
                             responseBody = JsonConvert.SerializeObject(scoreboard);
                         }
+                        else if(path == "/tradings")
+                        {
+                            IEnumerable<Trading> tradings = mediator.Send(new GetTradingsQuery()).Result;
+                            responseBody = JsonConvert.SerializeObject(tradings);
+                        }
                         else
                         {
                             //throw Exception because the path is invalid
@@ -234,6 +250,17 @@ namespace MonsterTradingCards
 
                             UserProfile userProfile = JsonConvert.DeserializeObject<UserProfile>(body);
                             mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile }).Wait();
+                        }
+                        else
+                        {
+                            //throw Exception because the path is invalid
+                        }
+                    }
+                    else if(method == "DELETE")
+                    {
+                        if (path.StartsWith("/tradings/"))
+                        {
+                            mediator.Send(new RemoveTradingCommand() { TradeId = Guid.Parse(path.Split("/")[2]) } ).Wait();
                         }
                         else
                         {
@@ -289,6 +316,7 @@ namespace MonsterTradingCards
                 .AddScoped<IUserRepository>(_ => new UserRepository(strConnString))
                 .AddScoped<IPackageRepository>(_ => new PackageRepository(strConnString))
                 .AddScoped<ICardRepository>(_ => new CardRepository(strConnString))
+                .AddScoped<ITradingRepository>(_ => new TradingRepository(strConnString))
                 .AddScoped<IUserContextFactory, UserContextFactory>()
                 .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly))
                 .AddMediatorAuthorization(Assembly.GetExecutingAssembly())

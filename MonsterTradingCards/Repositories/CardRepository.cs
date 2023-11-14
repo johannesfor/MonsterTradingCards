@@ -95,7 +95,7 @@ namespace MonsterTradingCards.Repositories
                                 CardType = reader.GetInt32(4),
                                 UserId = reader.GetGuid(5),
                                 IsInDeck = reader.GetBoolean(6),
-                                PackageId = reader.GetGuid(7),
+                                PackageId = reader.GetNullableGuid(7),
                             };
                         }
                     }

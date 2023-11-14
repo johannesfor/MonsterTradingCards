@@ -1,6 +1,6 @@
 ﻿\c monster_trading_cards
 
-DROP TABLE IF EXISTS marketplace;
+DROP TABLE IF EXISTS trading;
 DROP TABLE IF EXISTS card;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS package;
@@ -37,11 +37,13 @@ create table card (
 	CONSTRAINT fk_card_package FOREIGN KEY (package_id) REFERENCES package(id)
 );
 
-create table marketplace (
+create table trading (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	card_id UUID,
+	user_id UUID,
 	requirement_card_type integer,
 	requirement_min_damage decimal,
 
-	CONSTRAINT fk_marketplace_card FOREIGN KEY (card_id) REFERENCES card(id)
+	CONSTRAINT fk_trading_card FOREIGN KEY (card_id) REFERENCES card(id),
+	CONSTRAINT fk_trading_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
