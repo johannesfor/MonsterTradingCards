@@ -206,6 +206,11 @@ namespace MonsterTradingCards
                             UserStats userStats = mediator.Send(new GetUserStatsQuery()).Result;
                             responseBody = JsonConvert.SerializeObject(userStats);
                         }
+                        else if (path == "/scoreboard")
+                        {
+                            IEnumerable<Tuple<string, int>> scoreboard = mediator.Send(new GetScoreboardQuery()).Result;
+                            responseBody = JsonConvert.SerializeObject(scoreboard);
+                        }
                         else
                         {
                             //throw Exception because the path is invalid
