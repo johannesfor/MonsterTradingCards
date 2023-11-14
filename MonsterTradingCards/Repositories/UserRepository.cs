@@ -30,14 +30,15 @@ namespace MonsterTradingCards.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     connection.Open();
-                    command.CommandText = @"INSERT INTO users (id, username, password, bio, image, coins, elo, played_games)
-                                            VALUES (@id, @username, @password, @bio, @image, @coins, @elo, @played_games)"
+                    command.CommandText = @"INSERT INTO users (id, username, password, bio, image, coins, elo, played_games, name)
+                                            VALUES (@id, @username, @password, @bio, @image, @coins, @elo, @played_games, @name)"
                     ;
                     command.AddParameterWithValue("id", DbType.Guid, user.Id);
                     command.AddParameterWithValue("username", DbType.String, user.Username);
                     command.AddParameterWithValue("password", DbType.String, user.Password);
                     command.AddParameterWithValue("bio", DbType.String, user.Bio);
                     command.AddParameterWithValue("image", DbType.String, user.Image);
+                    command.AddParameterWithValue("name", DbType.String, user.Name);
 
                     command.AddParameterWithValue("coins", DbType.Int32, user.Coins);
                     command.AddParameterWithValue("elo", DbType.Int32, user.Elo);
@@ -57,7 +58,7 @@ namespace MonsterTradingCards.Repositories
                     connection.Open();
                     command.CommandText = @"DELETE FROM users WHERE id = @id";
 
-                    command.AddParameterWithValue("id", DbType.Int32, user.Id);
+                    command.AddParameterWithValue("id", DbType.Guid, user.Id);
 
                     command.ExecuteNonQuery();
                 }
@@ -70,7 +71,7 @@ namespace MonsterTradingCards.Repositories
             {
                 using (IDbCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games, name
                                         FROM users
                                         WHERE id = @id";
 
@@ -95,7 +96,8 @@ namespace MonsterTradingCards.Repositories
                                 Image = reader.GetNullableString(4),
                                 Coins = reader.GetInt32(5),
                                 Elo = reader.GetInt32(6),
-                                PlayedGames = reader.GetInt32(7)
+                                PlayedGames = reader.GetInt32(7),
+                                Name = reader.GetNullableString(8)
                             };
                         }
                     }
@@ -113,7 +115,7 @@ namespace MonsterTradingCards.Repositories
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     connection.Open();
-                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games, name
                                         FROM users";
 
                     using (IDataReader reader = command.ExecuteReader())
@@ -129,7 +131,8 @@ namespace MonsterTradingCards.Repositories
                                 Image = reader.GetNullableString(4),
                                 Coins = reader.GetInt32(5),
                                 Elo = reader.GetInt32(6),
-                                PlayedGames = reader.GetInt32(7)
+                                PlayedGames = reader.GetInt32(7),
+                                Name = reader.GetNullableString(8)
                             });
                         }
                     }
@@ -144,7 +147,7 @@ namespace MonsterTradingCards.Repositories
             {
                 using (IDbCommand command = connection.CreateCommand())
                 {
-                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games, name
                                         FROM users
                                         WHERE username = @username";
 
@@ -169,7 +172,8 @@ namespace MonsterTradingCards.Repositories
                                 Image = reader.GetNullableString(4),
                                 Coins = reader.GetInt32(5),
                                 Elo = reader.GetInt32(6),
-                                PlayedGames = reader.GetInt32(7)
+                                PlayedGames = reader.GetInt32(7),
+                                Name = reader.GetNullableString(8)
                             };
                         }
                     }
@@ -178,7 +182,7 @@ namespace MonsterTradingCards.Repositories
             return null;
         }
 
-        public void Update(User user, string[] parameters)
+        public void Update(User user, params string[] parameters)
         {
             if (user.Id == null)
                 throw new ArgumentNullException("Id cannot be null");
@@ -197,6 +201,7 @@ namespace MonsterTradingCards.Repositories
                     command.AddParameterWithValue("password", DbType.String, user.Password);
                     command.AddParameterWithValue("bio", DbType.String, user.Bio);
                     command.AddParameterWithValue("image", DbType.String, user.Image);
+                    command.AddParameterWithValue("name", DbType.String, user.Name);
 
                     command.AddParameterWithValue("coins", DbType.Int32, user.Coins);
                     command.AddParameterWithValue("elo", DbType.Int32, user.Elo);

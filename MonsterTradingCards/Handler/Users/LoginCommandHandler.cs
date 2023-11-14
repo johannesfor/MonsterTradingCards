@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MonsterTradingCards.CAQ.User;
+using MonsterTradingCards.CAQ.Users;
 using MonsterTradingCards.Contracts;
 using MonsterTradingCards.Models;
 using System;

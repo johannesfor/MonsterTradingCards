@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.CAQ.User
+namespace MonsterTradingCards.CAQ.Users
 {
-    public class RegisterCommand : IRequest<string>
+    public class LoginCommand : IRequest<string>
     {
         public string Username { get; set; }
         public string Password { get; set; }

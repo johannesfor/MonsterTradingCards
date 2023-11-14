@@ -16,7 +16,7 @@ public interface IRepository<T>
     void Add(T t);
 
     // UPDATE
-    void Update(T t, string[] parameters);
+    void Update(T t, params string[] parameters);
 
     // DELETE
     void Delete(T t);

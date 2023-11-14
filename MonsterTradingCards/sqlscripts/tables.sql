@@ -13,7 +13,8 @@ create table users (
 	image varchar(255),
 	coins integer,
 	elo integer,
-	played_games integer
+	played_games integer,
+	name varchar(255)
 );
 
 create table package (
@@ -23,7 +24,7 @@ create table package (
 create table card (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	name varchar(255),
-	damage integer,
+	damage decimal,
 	element_type integer,
 	card_type integer,
 
@@ -40,7 +41,7 @@ create table marketplace (
 	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 	card_id UUID,
 	requirement_card_type integer,
-	requirement_min_damage integer,
+	requirement_min_damage decimal,
 
 	CONSTRAINT fk_marketplace_card FOREIGN KEY (card_id) REFERENCES card(id)
 );

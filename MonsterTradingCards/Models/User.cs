@@ -17,5 +17,6 @@ namespace MonsterTradingCards.Models
         public int Coins { get; set; }
         public int Elo {  get; set; }
         public int PlayedGames { get; set; }
+        public string Name { get; set; }
     }
 }

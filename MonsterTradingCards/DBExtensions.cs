@@ -42,10 +42,22 @@ namespace MonsterTradingCards
             return value;
         }
 
+        public static Guid GetNullableGuid(this IDataRecord record, int ordinal)
+        {
+            Guid value = Guid.Empty;
+            if (!record.IsDBNull(ordinal))
+            {
+                value = record.GetGuid(ordinal);
+            }
+            return value;
+        }
+
         public static string ConvertAttributesToSetSQL<T>(this IRepository<T> repository, string[] parameters)
         {
             StringBuilder sb = new StringBuilder();
-            parameters.ToList().ForEach(parameter => sb.AppendFormat("%s = @%s", parameter));
+            parameters.ToList().ForEach(parameter => sb.AppendFormat("{0} = @{0}, ", parameter));
+            sb.Remove(sb.Length-2, 2);
+            sb.Append(" ");
             return sb.ToString();
         }
 

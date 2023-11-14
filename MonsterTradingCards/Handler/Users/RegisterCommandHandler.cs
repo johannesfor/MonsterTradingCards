@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using MonsterTradingCards.CAQ.User;
+using MonsterTradingCards.CAQ.Users;
 using MonsterTradingCards.Contracts;
 using MonsterTradingCards.Models;
 using System;
@@ -28,7 +28,7 @@ namespace MonsterTradingCards.Handler.Users
                 Id = Guid.NewGuid(),
                 Username = request.Username,
                 Password = request.Password.HashPassword(),
-                Coins = 0,
+                Coins = 20,
                 Elo = 100,
                 PlayedGames = 0
             };
