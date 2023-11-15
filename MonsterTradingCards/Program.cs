@@ -30,10 +30,10 @@ namespace MonsterTradingCards
 
         static void ClearDB(ServiceProvider serviceCollection)
         {
-            //IUserRepository userRepository = serviceCollection.GetRequiredService<IUserRepository>();
-            //userRepository.GetAll().ToList().ForEach(user =>
+            //ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
+            //tradingRepository.GetAll().ToList().ForEach(trade =>
             //{
-            //    userRepository.Delete(user);
+            //    tradingRepository.Delete(trade);
             //});
 
             //ICardRepository cardRepository = serviceCollection.GetRequiredService<ICardRepository>();
@@ -47,10 +47,23 @@ namespace MonsterTradingCards
             //{
             //    packageRepository.Delete(package);
             //});
+
+            //IUserRepository userRepository = serviceCollection.GetRequiredService<IUserRepository>();
+            //userRepository.GetAll().ToList().ForEach(user =>
+            //{
+            //    userRepository.Delete(user);
+            //});
         }
 
         static void Main(string[] args)
         {
+            //TODO:
+            //Statt 0 bzw. 1 für die Card-Typen sollten Enums verwendet werden wie das Skript es vorschlägt
+            //Den HTTP Server austauschen mit der Version vom Lektor
+            //Die ganzen Try/catches/excpetion http status codes einbauen
+            //Das Fight System
+
+
             Console.WriteLine("Our first simple HTTP-Server: http://localhost:10001/");
 
             // ===== I. Start the HTTP-Server =====
