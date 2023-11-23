@@ -21,6 +21,9 @@ using MonsterTradingCards.CAQ.Deck;
 using Newtonsoft.Json.Linq;
 using MonsterTradingCards.CAQ.Users;
 using MonsterTradingCards.CAQ.Tradings;
+using FHTW.Swen1.Swamp;
+using MediatR.Behaviors.Authorization.Exceptions;
+using MonsterTradingCards.Exceptions;
 
 namespace MonsterTradingCards
 {
@@ -55,275 +58,199 @@ namespace MonsterTradingCards
             //});
         }
 
-        static void Main(string[] args)
+        private static void _ProcessMesage(object sender, HttpSvrEventArgs e)
         {
-            //TODO:
-            //Statt 0 bzw. 1 für die Card-Typen sollten Enums verwendet werden wie das Skript es vorschlägt
-            //Den HTTP Server austauschen mit der Version vom Lektor
-            //Die ganzen Try/catches/excpetion http status codes einbauen
-            //Das Fight System
+            Console.WriteLine(e.PlainMessage);
 
+            string? authorizationToken = e.Headers.FirstOrDefault(header => header.Name.Equals("Authorization"))?.Value;
+            ServiceProvider serviceProvider = SetupDepencyInjection(authorizationToken);
+            var mediator = serviceProvider.GetRequiredService<IMediator>();
 
-            Console.WriteLine("Our first simple HTTP-Server: http://localhost:10001/");
+            string responseBody = null;
 
-            // ===== I. Start the HTTP-Server =====
-            var httpServer = new TcpListener(IPAddress.Loopback, 10001);
-            httpServer.Start();
-
-            while (true)
+            try
             {
-                // ----- 0. Accept the TCP-Client and create the reader and writer -----
-                var clientSocket = httpServer.AcceptTcpClient();
-                using var writer = new StreamWriter(clientSocket.GetStream()) { AutoFlush = true };
-                using var reader = new StreamReader(clientSocket.GetStream());
-
-                // ----- 1. Read the HTTP-Request -----
-                string? line = null;
-                string method = null;
-                string path = null;
-                string body = null;
-                Dictionary<string, string> pathParams = new Dictionary<string, string>();
-
-                // 1.1 first line in HTTP contains the method, path and HTTP version
-                line = reader.ReadLine();
-                if (line != null)
+                if (e.Method == "POST")
                 {
-                    Console.WriteLine(line);
-                    string[] splittedLine = line.Split(" ");
-
-                    method = splittedLine[0];
-
-                    string[] fullPathSplitted = splittedLine[1].Split("?");
-                    path = fullPathSplitted[0];
-
-                    if (fullPathSplitted.Length > 1)
+                    if (e.Path == "/users")
                     {
-                        string[] paramsOfPath = fullPathSplitted[1].Split("&");
-                        foreach (string param in paramsOfPath)
-                        {
-                            string[] keyValueSplit = param.Split("=");
-                            pathParams.Add(keyValueSplit[0], keyValueSplit[1]);
-                        }
+                        RegisterCommand command = JsonConvert.DeserializeObject<RegisterCommand>(e.Payload);
+                        string token = mediator.Send(command).Result;
+                        responseBody = JsonConvert.SerializeObject(token);
                     }
-                }
-
-                // 1.2 read the HTTP-headers (in HTTP after the first line, until the empy line)
-                int content_length = 0; // we need the content_length later, to be able to read the HTTP-content
-                string authorizationToken = null;
-                while ((line = reader.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
-                    if (line.StartsWith("Authorization:"))
+                    else if (e.Path == "/sessions")
                     {
-                        string[] splittedAuthorization = line.Split(" ");
-                        if (splittedAuthorization.Length != 3)
-                            throw new ArgumentException("Invalid format for Bearer token");
-                        authorizationToken = splittedAuthorization[2];
+                        LoginCommand command = JsonConvert.DeserializeObject<LoginCommand>(e.Payload);
+                        string token = mediator.Send(command).Result;
+                        responseBody = JsonConvert.SerializeObject(token);
                     }
-
-                    if (line == "")
+                    else if (e.Path == "/packages")
                     {
-                        break;  // empty line indicates the end of the HTTP-headers
+                        IEnumerable<Card> cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(e.Payload);
+                        mediator.Send(new CreatePackageCommand() { Cards = cards }).Wait();
                     }
-
-                    // Parse the header
-                    var parts = line.Split(':');
-                    if (parts.Length == 2 && parts[0] == "Content-Length")
+                    else if (e.Path == "/transactions/packages")
                     {
-                        content_length = int.Parse(parts[1].Trim());
+                        mediator.Send(new AquirePackageCommand()).Wait();
                     }
-                }
-
-
-                // 1.3 read the body if existing
-                if (content_length > 0)
-                {
-                    var data = new StringBuilder(200);
-                    char[] chars = new char[1024];
-                    int bytesReadTotal = 0;
-                    while (bytesReadTotal < content_length)
+                    else if (e.Path == "/tradings")
                     {
-                        var bytesRead = reader.Read(chars, 0, chars.Length);
-                        bytesReadTotal += bytesRead;
-                        if (bytesRead == 0)
-                            break;
-                        data.Append(chars, 0, bytesRead);
+                        Trading trade = JsonConvert.DeserializeObject<Trading>(e.Payload);
+                        mediator.Send(new AddTradingCommand() { Trading = trade }).Wait();
                     }
-                    Console.WriteLine(data.ToString());
-                    body = data.ToString();
-                }
-
-                // ----- 2. Do the processing -----
-                // .... 
-
-                Console.WriteLine("----------------------------------------");
-                ServiceProvider serviceProvider = SetupDepencyInjection(authorizationToken);
-                var mediator = serviceProvider.GetRequiredService<IMediator>();
-
-                string responseBody = null;
-                if (path != null)
-                {
-                    if(method == "POST")
+                    else if (e.Path.StartsWith("/tradings/"))
                     {
-                        if (path == "/users")
-                        {
-                            RegisterCommand command = JsonConvert.DeserializeObject<RegisterCommand>(body);
-                            string token = mediator.Send(command).Result;
-                            responseBody = JsonConvert.SerializeObject(token);
-                        }
-                        else if (path == "/sessions")
-                        {
-                            LoginCommand command = JsonConvert.DeserializeObject<LoginCommand>(body);
-                            string token = mediator.Send(command).Result;
-                            responseBody = JsonConvert.SerializeObject(token);
-                        }
-                        else if (path == "/packages")
-                        {
-                            IEnumerable<Card> cards = JsonConvert.DeserializeObject<IEnumerable<Card>>(body);
-                            mediator.Send(new CreatePackageCommand() { Cards = cards }).Wait();
-                        }
-                        else if(path == "/transactions/packages")
-                        {
-                            mediator.Send(new AquirePackageCommand()).Wait();
-                        }
-                        else if(path == "/tradings")
-                        {
-                            Trading trade = JsonConvert.DeserializeObject<Trading>(body);
-                            mediator.Send(new AddTradingCommand() { Trading = trade }).Wait();
-                        }
-                        else if(path.StartsWith("/tradings/"))
-                        {
-                            Guid cardId = JsonConvert.DeserializeObject<Guid>(body);
-                            mediator.Send(new MakeTradeCommand() { CardId = cardId, TradeId = Guid.Parse(path.Split("/")[2]) }).Wait();
-                        }
-                        else
-                        {
-                            //throw Exception because the path is invalid
-                        }
-                    }
-                    else if(method == "GET")
-                    {
-                        if (path == "/cards")
-                        {
-                            IEnumerable<Card> cards = mediator.Send(new GetAquiredCardsQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(cards);
-                        }
-                        else if(path == "/deck")
-                        {
-                            IEnumerable<Card> cards = mediator.Send(new GetDeckQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(cards);
-                        }
-                        else if(path.StartsWith("/users/"))
-                        {
-                            string username = path.Split("/")[2];
-
-                            //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
-                            //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
-                            if (username != authorizationToken.Split("-")[0])
-                                throw new ArgumentException("Invalid token for specified username");
-
-                            UserProfile userProfile = mediator.Send(new GetUserProfileQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(userProfile);
-                        }
-                        else if(path == "/stats")
-                        {
-                            UserStats userStats = mediator.Send(new GetUserStatsQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(userStats);
-                        }
-                        else if (path == "/scoreboard")
-                        {
-                            IEnumerable<Tuple<string, int>> scoreboard = mediator.Send(new GetScoreboardQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(scoreboard);
-                        }
-                        else if(path == "/tradings")
-                        {
-                            IEnumerable<Trading> tradings = mediator.Send(new GetTradingsQuery()).Result;
-                            responseBody = JsonConvert.SerializeObject(tradings);
-                        }
-                        else
-                        {
-                            //throw Exception because the path is invalid
-                        }
-                    }
-                    else if(method == "PUT")
-                    {
-                        if (path == "/deck")
-                        {
-                            IEnumerable<Guid> cardIds = JsonConvert.DeserializeObject<IEnumerable<Guid>>(body);
-                            mediator.Send(new UpdateDeckCommand() { CardIds = cardIds }).Wait();
-                        }
-                        else if (path.StartsWith("/users/"))
-                        {
-                            string username = path.Split("/")[2];
-
-                            //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
-                            //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
-                            if (username != authorizationToken.Split("-")[0])
-                                throw new ArgumentException("Invalid token for specified username");
-
-                            UserProfile userProfile = JsonConvert.DeserializeObject<UserProfile>(body);
-                            mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile }).Wait();
-                        }
-                        else
-                        {
-                            //throw Exception because the path is invalid
-                        }
-                    }
-                    else if(method == "DELETE")
-                    {
-                        if (path.StartsWith("/tradings/"))
-                        {
-                            mediator.Send(new RemoveTradingCommand() { TradeId = Guid.Parse(path.Split("/")[2]) } ).Wait();
-                        }
-                        else
-                        {
-                            //throw Exception because the path is invalid
-                        }
+                        Guid cardId = JsonConvert.DeserializeObject<Guid>(e.Payload);
+                        mediator.Send(new MakeTradeCommand() { CardId = cardId, TradeId = Guid.Parse(e.Path.Split("/")[2]) }).Wait();
                     }
                     else
                     {
-                        //throw Exception because the path is invalid
+                        throw new PathNotFoundException();
                     }
                 }
-
-                if (responseBody != null && pathParams.ContainsKey("format") && pathParams["format"] == "plain")
+                else if (e.Method == "GET")
                 {
-                    //var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseBody);
-                    //responseBody = string.Join(',', dict.Select(r => $"{r.Key}={r.Value}"));
-
-                    StringBuilder sb = new StringBuilder();
-
-                    // Deserialisiere das JSON
-                    JArray jsonArray = JArray.Parse(responseBody);
-
-                    // Iteriere durch jedes Element im JSON-Array
-                    foreach (JObject jsonObject in jsonArray)
+                    if (e.Path == "/cards")
                     {
-                        // Iteriere durch jedes Property im JSON-Objekt
-                        foreach (var property in jsonObject.Properties())
-                        {
-                            sb.AppendLine($"{property.Name}: {GetValueAsString(property.Value)}");
-                        }
+                        IEnumerable<Card> cards = mediator.Send(new GetAquiredCardsQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(cards);
                     }
+                    else if (e.Path == "/deck")
+                    {
+                        IEnumerable<Card> cards = mediator.Send(new GetDeckQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(cards);
+                    }
+                    else if (e.Path.StartsWith("/users/"))
+                    {
+                        string username = e.Path.Split("/")[2];
 
-                    responseBody = sb.ToString();
+                        //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
+                        //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
+                        if (username != authorizationToken.Split("-")[0])
+                            throw new ArgumentException("Invalid token for specified username");
+
+                        UserProfile userProfile = mediator.Send(new GetUserProfileQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(userProfile);
+                    }
+                    else if (e.Path == "/stats")
+                    {
+                        UserStats userStats = mediator.Send(new GetUserStatsQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(userStats);
+                    }
+                    else if (e.Path == "/scoreboard")
+                    {
+                        IEnumerable<Tuple<string, int>> scoreboard = mediator.Send(new GetScoreboardQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(scoreboard);
+                    }
+                    else if (e.Path == "/tradings")
+                    {
+                        IEnumerable<Trading> tradings = mediator.Send(new GetTradingsQuery()).Result;
+                        responseBody = JsonConvert.SerializeObject(tradings);
+                    }
+                    else
+                    {
+                        throw new PathNotFoundException();
+                    }
+                }
+                else if (e.Method == "PUT")
+                {
+                    if (e.Path == "/deck")
+                    {
+                        IEnumerable<Guid> cardIds = JsonConvert.DeserializeObject<IEnumerable<Guid>>(e.Payload);
+                        mediator.Send(new UpdateDeckCommand() { CardIds = cardIds }).Wait();
+                    }
+                    else if (e.Path.StartsWith("/users/"))
+                    {
+                        string username = e.Path.Split("/")[2];
+
+                        //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
+                        //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
+                        if (username != authorizationToken.Split("-")[0])
+                            throw new ArgumentException("Invalid token for specified username");
+
+                        UserProfile userProfile = JsonConvert.DeserializeObject<UserProfile>(e.Payload);
+                        mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile }).Wait();
+                    }
+                    else
+                    {
+                        throw new PathNotFoundException();
+                    }
+                }
+                else if (e.Method == "DELETE")
+                {
+                    if (e.Path.StartsWith("/tradings/"))
+                    {
+                        mediator.Send(new RemoveTradingCommand() { TradeId = Guid.Parse(e.Path.Split("/")[2]) }).Wait();
+                    }
+                    else
+                    {
+                        throw new PathNotFoundException();
+                    }
+                }
+                else
+                {
+                    throw new PathNotFoundException();
                 }
 
-                // ----- 3. Write the HTTP-Response -----
-                var writerAlsoToConsole = new StreamTracer(writer);  // we use a simple helper-class StreamTracer to write the HTTP-Response to the client and to the console
 
-                writerAlsoToConsole.WriteLine("HTTP/1.0 200 OK");    // first line in HTTP-Response contains the HTTP-Version and the status code
-                writerAlsoToConsole.WriteLine("Content-Type: application/json");     // the HTTP-headers (in HTTP after the first line, until the empy line)
-                writerAlsoToConsole.WriteLine();
-                writerAlsoToConsole.WriteLine(responseBody);    // the HTTP-content (here we just return a minimalistic HTML Hello-World)
+                if (responseBody != null)
+                {
+                    string format = e.PathParams.FirstOrDefault(pathParam => pathParam.Equals("format"))?.Value;
+                    if (format == "plain")
+                    {
+                        StringBuilder sb = new StringBuilder();
 
-                Console.WriteLine("========================================");
+                        // Deserialisiere das JSON
+                        JArray jsonArray = JArray.Parse(responseBody);
+
+                        // Iteriere durch jedes Element im JSON-Array
+                        foreach (JObject jsonObject in jsonArray)
+                        {
+                            // Iteriere durch jedes Property im JSON-Objekt
+                            foreach (var property in jsonObject.Properties())
+                            {
+                                sb.AppendLine($"{property.Name}: {GetValueAsString(property.Value)}");
+                            }
+                        }
+
+                        responseBody = sb.ToString();
+                    }
+                }
+
+                e.Reply(200, responseBody);
             }
-
-
+            catch(PathNotFoundException ex)
+            {
+                e.Reply(404, "Method and path does not match endpoint");
+            }
+            catch(AggregateException ex)
+            {
+                if (ex.InnerException?.GetType() == typeof(UnauthorizedException))
+                    e.Reply(401, "Not authorized: " + ex.InnerException.Message);
+                else
+                    e.Reply(400, "Bad request");
+            }
+            catch(Exception ex)
+            {
+                e.Reply(400, "Bad request");
+            }
         }
 
-        static ServiceProvider SetupDepencyInjection(string authorizationToken)
+        static void Main(string[] args)
+        {
+            HttpSvr svr = new();
+            svr.Incoming += _ProcessMesage;
+
+            svr.Run();
+            return;
+
+            //TODO:
+            //Statt 0 bzw. 1 für die Card-Typen sollten Enums verwendet werden wie das Skript es vorschlägt
+            //Die ganzen Try/catches/excpetion http status codes einbauen
+            //Das Fight System
+        }
+
+        static ServiceProvider SetupDepencyInjection(string? authorizationToken)
         {
             var serviceCollection = new ServiceCollection()
                 .AddScoped<IUserRepository>(_ => new UserRepository(strConnString))

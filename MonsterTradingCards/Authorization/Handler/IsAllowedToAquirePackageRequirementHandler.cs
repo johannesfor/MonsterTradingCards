@@ -23,7 +23,7 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsAllowedToAquirePackageRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail("Nicht authentifiziert");
+                return AuthorizationResult.Fail();
 
             if (userContext.User.Coins < 5)
                 return AuthorizationResult.Fail("Zu wenig Coins");

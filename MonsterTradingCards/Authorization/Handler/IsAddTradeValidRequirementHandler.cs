@@ -24,6 +24,9 @@ namespace MonsterTradingCards.Authorization.Handler
         }
         public async Task<AuthorizationResult> Handle(IsAddTradeValidRequirement requirement, CancellationToken cancellationToken = default)
         {
+            if (userContext.User == null)
+                return AuthorizationResult.Fail();
+
             Card foundCard = cardRepository.Get(requirement.Trading.CardToTrade);
 
             if (foundCard == null)

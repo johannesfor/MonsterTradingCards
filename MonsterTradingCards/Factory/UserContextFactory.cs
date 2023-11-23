@@ -23,7 +23,7 @@ namespace MonsterTradingCards.Factory
             //Aufgrund des vorgegeben CURL-Skripts von der Angabe ist das hardcoded
             if (authorizationToken != null)
             {
-                User foundUser = userRepository.GetByUsername(authorizationToken.Split("-")[0]);
+                User foundUser = userRepository.GetByUsername(authorizationToken.Split(" ")[1].Split("-")[0]);
                 if (foundUser != null)
                     return new UserContext() { User = foundUser, IsAdmin = foundUser.Username.Equals("admin") };
             }

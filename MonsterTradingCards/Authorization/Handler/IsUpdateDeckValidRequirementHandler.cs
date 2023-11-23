@@ -23,7 +23,7 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsUpdateDeckValidRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail("Nicht authentifiziert");
+                return AuthorizationResult.Fail();
 
             if (requirement.CardIds.Count() != 4)
                 return AuthorizationResult.Fail("Die übergebenen Karten sind zu viele bzw. zu wenige für das Deck");
