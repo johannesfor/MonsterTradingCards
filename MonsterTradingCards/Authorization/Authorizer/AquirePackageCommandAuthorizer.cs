@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards.Authorization.Authorizer
 {
-    public class AquirePackageCommandHandler : AbstractRequestAuthorizer<AquirePackageCommand>
+    public class AquirePackageCommandAuthorizer : AbstractRequestAuthorizer<AquirePackageCommand>
     {
         public override void BuildPolicy(AquirePackageCommand request)
         {
