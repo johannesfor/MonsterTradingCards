@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards
 {
-    public static class DbExtensions
+    public static class Extensions
     {
         public static void AddParameterWithValue(this IDbCommand command, string parameterName, DbType type, object value)
         {
@@ -70,6 +70,17 @@ namespace MonsterTradingCards
                     iterationCount: 100000,
                     numBytesRequested: 256 / 8));
             return hashed;
+        }
+
+        public static T RandomElement<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.RandomElementUsing<T>(new Random());
+        }
+
+        public static T RandomElementUsing<T>(this IEnumerable<T> enumerable, Random rand)
+        {
+            int index = rand.Next(0, enumerable.Count());
+            return enumerable.ElementAt(index);
         }
     }
 }

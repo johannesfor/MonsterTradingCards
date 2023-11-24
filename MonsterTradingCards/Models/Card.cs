@@ -11,8 +11,8 @@ namespace MonsterTradingCards.Models
         public Guid? Id { get; set; }
         public string Name { get; set; }
         public double Damage { get; set; }
-        public int ElementType { get; set; }
-        public int CardType { get; set; }
+        public ElementType ElementType { get; set; }
+        public CardType CardType { get; set; }
         public Guid? UserId { get; set; }
         public bool IsInDeck { get; set; }
         public Guid? PackageId { get; set; }

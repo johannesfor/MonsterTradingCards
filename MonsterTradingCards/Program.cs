@@ -24,6 +24,7 @@ using MonsterTradingCards.CAQ.Tradings;
 using FHTW.Swen1.Swamp;
 using MediatR.Behaviors.Authorization.Exceptions;
 using MonsterTradingCards.Exceptions;
+using MonsterTradingCards.CAQ.Battle;
 
 namespace MonsterTradingCards
 {
@@ -33,29 +34,29 @@ namespace MonsterTradingCards
 
         static void ClearDB(ServiceProvider serviceCollection)
         {
-            //ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
-            //tradingRepository.GetAll().ToList().ForEach(trade =>
-            //{
-            //    tradingRepository.Delete(trade);
-            //});
+            ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
+            tradingRepository.GetAll().ToList().ForEach(trade =>
+            {
+                tradingRepository.Delete(trade);
+            });
 
-            //ICardRepository cardRepository = serviceCollection.GetRequiredService<ICardRepository>();
-            //cardRepository.GetAll().ToList().ForEach(card =>
-            //{
-            //    cardRepository.Delete(card);
-            //});
+            ICardRepository cardRepository = serviceCollection.GetRequiredService<ICardRepository>();
+            cardRepository.GetAll().ToList().ForEach(card =>
+            {
+                cardRepository.Delete(card);
+            });
 
-            //IPackageRepository packageRepository = serviceCollection.GetRequiredService<IPackageRepository>();
-            //packageRepository.GetAll().ToList().ForEach(package =>
-            //{
-            //    packageRepository.Delete(package);
-            //});
+            IPackageRepository packageRepository = serviceCollection.GetRequiredService<IPackageRepository>();
+            packageRepository.GetAll().ToList().ForEach(package =>
+            {
+                packageRepository.Delete(package);
+            });
 
-            //IUserRepository userRepository = serviceCollection.GetRequiredService<IUserRepository>();
-            //userRepository.GetAll().ToList().ForEach(user =>
-            //{
-            //    userRepository.Delete(user);
-            //});
+            IUserRepository userRepository = serviceCollection.GetRequiredService<IUserRepository>();
+            userRepository.GetAll().ToList().ForEach(user =>
+            {
+                userRepository.Delete(user);
+            });
         }
 
         private static void _ProcessMesage(object sender, HttpSvrEventArgs e)
@@ -103,6 +104,11 @@ namespace MonsterTradingCards
                         Guid cardId = JsonConvert.DeserializeObject<Guid>(e.Payload);
                         mediator.Send(new MakeTradeCommand() { CardId = cardId, TradeId = Guid.Parse(e.Path.Split("/")[2]) }).Wait();
                     }
+                    else if (e.Path == "/battles")
+                    {
+                        IEnumerable<string> battleLog = mediator.Send(new BattleWithRandomPlayerCommand()).Result;
+                        responseBody = JsonConvert.SerializeObject(battleLog);
+                    }
                     else
                     {
                         throw new PathNotFoundException();
@@ -123,13 +129,7 @@ namespace MonsterTradingCards
                     else if (e.Path.StartsWith("/users/"))
                     {
                         string username = e.Path.Split("/")[2];
-
-                        //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
-                        //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
-                        if (username != authorizationToken.Split("-")[0])
-                            throw new ArgumentException("Invalid token for specified username");
-
-                        UserProfile userProfile = mediator.Send(new GetUserProfileQuery()).Result;
+                        UserProfile userProfile = mediator.Send(new GetUserProfileQuery() { UserName = username }).Result;
                         responseBody = JsonConvert.SerializeObject(userProfile);
                     }
                     else if (e.Path == "/stats")
@@ -161,13 +161,6 @@ namespace MonsterTradingCards
                     }
                     else if (e.Path.StartsWith("/users/"))
                     {
-                        string username = e.Path.Split("/")[2];
-
-                        //Eigentlich sollte per Parameter der usename gar nicht angegeben werden, weil der Token reicht aus um den User zu bestimmen im Normalfall
-                        //Aufgrund des vorgegeben Curl-Skripts musste ich allerdings diese Überprüfung einbauen, welche den sowieso nicht ganz korrekten/hardcoded Token validiert
-                        if (username != authorizationToken.Split("-")[0])
-                            throw new ArgumentException("Invalid token for specified username");
-
                         UserProfile userProfile = JsonConvert.DeserializeObject<UserProfile>(e.Payload);
                         mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile }).Wait();
                     }
@@ -190,31 +183,6 @@ namespace MonsterTradingCards
                 else
                 {
                     throw new PathNotFoundException();
-                }
-
-
-                if (responseBody != null)
-                {
-                    string format = e.PathParams.FirstOrDefault(pathParam => pathParam.Equals("format"))?.Value;
-                    if (format == "plain")
-                    {
-                        StringBuilder sb = new StringBuilder();
-
-                        // Deserialisiere das JSON
-                        JArray jsonArray = JArray.Parse(responseBody);
-
-                        // Iteriere durch jedes Element im JSON-Array
-                        foreach (JObject jsonObject in jsonArray)
-                        {
-                            // Iteriere durch jedes Property im JSON-Objekt
-                            foreach (var property in jsonObject.Properties())
-                            {
-                                sb.AppendLine($"{property.Name}: {GetValueAsString(property.Value)}");
-                            }
-                        }
-
-                        responseBody = sb.ToString();
-                    }
                 }
 
                 e.Reply(200, responseBody);

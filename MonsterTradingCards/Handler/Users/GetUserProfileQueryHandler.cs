@@ -14,18 +14,25 @@ namespace MonsterTradingCards.Handler.Users
     public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, UserProfile>
     {
         private IUserContext userContext;
-        public GetUserProfileQueryHandler(IUserContext userContext)
+        private IUserRepository userRepository;
+        public GetUserProfileQueryHandler(IUserContext userContext, IUserRepository userRepository)
         {
             this.userContext = userContext;
+            this.userRepository = userRepository;
         }
 
         public async Task<UserProfile> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
         {
+            User foundUser = userRepository.GetByUsername(request.UserName);
+
+            if (foundUser == null)
+                return null;
+
             return new UserProfile()
             {
-                Name = userContext.User.Name,
-                Bio = userContext.User.Bio,
-                Image = userContext.User.Image
+                Name = foundUser.Name,
+                Bio = foundUser.Bio,
+                Image = foundUser.Image
             };
         }
     }

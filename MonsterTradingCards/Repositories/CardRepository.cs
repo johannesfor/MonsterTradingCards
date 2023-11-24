@@ -36,8 +36,8 @@ namespace MonsterTradingCards.Repositories
                     command.AddParameterWithValue("name", DbType.String, card.Name);
 
                     command.AddParameterWithValue("damage", DbType.Double, card.Damage);
-                    command.AddParameterWithValue("element_type", DbType.Int32, card.ElementType);
-                    command.AddParameterWithValue("card_type", DbType.Int32, card.CardType);
+                    command.AddParameterWithValue("element_type", DbType.Int32, (int)card.ElementType);
+                    command.AddParameterWithValue("card_type", DbType.Int32, (int)card.CardType);
 
                     command.AddParameterWithValue("user_id", DbType.Guid, card.UserId);
                     command.AddParameterWithValue("is_in_deck", DbType.Boolean, card.IsInDeck);
@@ -91,8 +91,8 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 Name = reader.GetString(1),
                                 Damage = reader.GetInt32(2),
-                                ElementType = reader.GetInt32(3),
-                                CardType = reader.GetInt32(4),
+                                ElementType = (ElementType) reader.GetInt32(3),
+                                CardType = (CardType) reader.GetInt32(4),
                                 UserId = reader.GetGuid(5),
                                 IsInDeck = reader.GetBoolean(6),
                                 PackageId = reader.GetNullableGuid(7),
@@ -125,8 +125,8 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 Name = reader.GetString(1),
                                 Damage = reader.GetInt32(2),
-                                ElementType = reader.GetInt32(3),
-                                CardType = reader.GetInt32(4),
+                                ElementType = (ElementType) reader.GetInt32(3),
+                                CardType = (CardType) reader.GetInt32(4),
                                 UserId = reader.GetNullableGuid(5),
                                 IsInDeck = reader.GetBoolean(6),
                                 PackageId = reader.GetNullableGuid(7),
@@ -168,8 +168,8 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 Name = reader.GetString(1),
                                 Damage = reader.GetInt32(2),
-                                ElementType = reader.GetInt32(3),
-                                CardType = reader.GetInt32(4),
+                                ElementType = (ElementType)reader.GetInt32(3),
+                                CardType = (CardType)reader.GetInt32(4),
                                 UserId = reader.GetNullableGuid(5),
                                 IsInDeck = reader.GetBoolean(6),
                                 PackageId = reader.GetNullableGuid(7),

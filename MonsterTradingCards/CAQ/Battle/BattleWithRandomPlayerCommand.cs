@@ -6,10 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.CAQ.Users
+namespace MonsterTradingCards.CAQ.Battle
 {
-    public class GetUserProfileQuery : IRequest<UserProfile>
+    public class BattleWithRandomPlayerCommand : IRequest<IEnumerable<string>>
     {
-        public string UserName { get; set; }
     }
 }

@@ -28,6 +28,19 @@ namespace MonsterTradingCards.Handler.Admin
             request.Cards.ToList().ForEach(card =>
             {
                 card.PackageId = package.Id;
+
+                if (card.Name.EndsWith("Spell"))
+                    card.CardType = CardType.Spell;
+                else
+                    card.CardType = CardType.Monster;
+
+                if (card.Name.StartsWith("Fire"))
+                    card.ElementType = ElementType.Fire;
+                else if (card.Name.StartsWith("Water"))
+                    card.ElementType = ElementType.Water;
+                else
+                    card.ElementType = ElementType.Normal;
+
                 cardRepository.Add(card);
             });
         }

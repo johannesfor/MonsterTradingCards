@@ -35,7 +35,7 @@ namespace MonsterTradingCards.Repositories
                     command.AddParameterWithValue("id", DbType.Guid, trading.Id);
                     command.AddParameterWithValue("card_id", DbType.Guid, trading.CardToTrade);
                     command.AddParameterWithValue("user_id", DbType.Guid, trading.UserId);
-                    command.AddParameterWithValue("requirement_card_type", DbType.Int32, trading.Type);
+                    command.AddParameterWithValue("requirement_card_type", DbType.Int32, (int)trading.Type);
                     command.AddParameterWithValue("requirement_min_damage", DbType.Int32, trading.MinimumDamage);
                     command.ExecuteNonQuery();
                 }
@@ -86,7 +86,7 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 CardToTrade = reader.GetGuid(1),
                                 UserId = reader.GetGuid(2),
-                                Type = reader.GetInt32(3),
+                                Type = (CardType) reader.GetInt32(3),
                                 MinimumDamage = reader.GetInt32(4)
                             };
                         }
@@ -117,7 +117,7 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 CardToTrade = reader.GetGuid(1),
                                 UserId = reader.GetGuid(2),
-                                Type = reader.GetInt32(3),
+                                Type = (CardType) reader.GetInt32(3),
                                 MinimumDamage = reader.GetInt32(4)
                             });
                         }
@@ -154,7 +154,7 @@ namespace MonsterTradingCards.Repositories
                                 Id = reader.GetGuid(0),
                                 CardToTrade = reader.GetGuid(1),
                                 UserId = reader.GetGuid(2),
-                                Type = reader.GetInt32(3),
+                                Type = (CardType) reader.GetInt32(3),
                                 MinimumDamage = reader.GetInt32(4)
                             };
                         }

@@ -107,6 +107,42 @@ namespace MonsterTradingCards.Repositories
 
         }
 
+        public User GetRandom()
+        {
+            using (IDbConnection connection = new NpgsqlConnection(_connectionString))
+            {
+                using (IDbCommand command = connection.CreateCommand())
+                {
+                    command.CommandText = @"SELECT id, username, password, bio, image, coins, elo, played_games, name
+                                        FROM users
+                                        ORDER BY random()
+                                        LIMIT 1";
+
+                    connection.Open();
+
+                    using (IDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new User()
+                            {
+                                Id = reader.GetGuid(0),
+                                Username = reader.GetString(1),
+                                Password = reader.GetString(2),
+                                Bio = reader.GetNullableString(3),
+                                Image = reader.GetNullableString(4),
+                                Coins = reader.GetInt32(5),
+                                Elo = reader.GetInt32(6),
+                                PlayedGames = reader.GetInt32(7),
+                                Name = reader.GetNullableString(8)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
         public IEnumerable<User> GetAll()
         {
             List<User> result = new List<User>();

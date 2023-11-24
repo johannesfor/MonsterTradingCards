@@ -1,4 +1,6 @@
 ﻿using MonsterTradingCards.Webserver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Net.Sockets;
@@ -50,7 +52,7 @@ namespace FHTW.Swen1.Swamp
 
                     if (fullPathSplitted.Length > 1)
                     {
-                        string[] paramsOfPath = Path.Split("&");
+                        string[] paramsOfPath = fullPathSplitted[1].Split("&");
                         foreach (string param in paramsOfPath)
                         {
                             string[] keyValueSplit = param.Split("=");
@@ -145,7 +147,7 @@ namespace FHTW.Swen1.Swamp
                 case 404:
                     data = "HTTP/1.1 404 Not Found\n"; break;
                 default:
-                    data = "HTTP/1.1 418 I'm a Teapot\n"; break;
+                    data = "HTTP/1.1 400 Bad Request: I dont know what happened\n"; break;
             }
             
             if(string.IsNullOrEmpty(payload)) 
@@ -154,12 +156,57 @@ namespace FHTW.Swen1.Swamp
             }
             data += "Content-Type: text/plain\n\n";
 
-            if(!string.IsNullOrEmpty(payload)) { data += payload; }
+
+            if (!string.IsNullOrEmpty(payload))
+            {
+                string format = PathParams.FirstOrDefault(pathParam => pathParam.Name.Equals("format"))?.Value;
+                if (format == "plain")
+                {
+                    dynamic jsonObj = JsonConvert.DeserializeObject(payload);
+                    data += ConvertToJsonStringWithSpaces(jsonObj);
+                }
+                else
+                {
+                    data += payload;
+                }
+            }
 
             byte[] buf = Encoding.ASCII.GetBytes(data);
             _Client.GetStream().Write(buf, 0, buf.Length);
             _Client.Close();
             _Client.Dispose();
+        }
+
+        private string ConvertToJsonStringWithSpaces(JToken token)
+        {
+            if (token.Type == JTokenType.Object)
+            {
+                var properties = token.Children<JProperty>();
+                List<string> propertyStrings = new List<string>();
+
+                foreach (var property in properties)
+                {
+                    propertyStrings.Add($"{property.Name}:{ConvertToJsonStringWithSpaces(property.Value)}");
+                }
+
+                return string.Join("\n", propertyStrings);
+            }
+            else if (token.Type == JTokenType.Array)
+            {
+                var items = token.Children();
+                List<string> itemStrings = new List<string>();
+
+                foreach (var item in items)
+                {
+                    itemStrings.Add(ConvertToJsonStringWithSpaces(item));
+                }
+
+                return string.Join("\n", itemStrings);
+            }
+            else
+            {
+                return token.ToString();
+            }
         }
     }
 }
