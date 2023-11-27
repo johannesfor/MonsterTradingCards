@@ -134,7 +134,7 @@ namespace FHTW.Swen1.Swamp
         /// <summary>Returns a reply to the HTTP request.</summary>
         /// <param name="status">Status code.</param>
         /// <param name="payload">Payload.</param>
-        public virtual void Reply(int status, string? payload = null)
+        public virtual void Reply(int status, string? payload = null, ContentType? contentType = null)
         {
             string data;
 
@@ -144,18 +144,29 @@ namespace FHTW.Swen1.Swamp
                     data = "HTTP/1.1 200 OK\n"; break;
                 case 400:
                     data = "HTTP/1.1 400 Bad Request\n"; break;
+                case 401:
+                    data = "HTTP/1.1 401 Unauthorized\n"; break;
                 case 404:
                     data = "HTTP/1.1 404 Not Found\n"; break;
                 default:
-                    data = "HTTP/1.1 400 Bad Request: I dont know what happened\n"; break;
+                    data = "HTTP/1.1 400 Bad Request\n"; break;
             }
             
             if(string.IsNullOrEmpty(payload)) 
             {
                 data += "Content-Length: 0\n";
             }
-            data += "Content-Type: text/plain\n\n";
 
+            switch(contentType)
+            {
+                case ContentType.TEXT_PLAIN:
+                    data += "Content-Type: text/plain\n"; break;
+                case ContentType.APPLICATION_JSON:
+                    data += "Content-Type: application/json\n"; break;
+                default:
+                    data += "Content-Type: text/plain\n"; break;
+            }
+            data += "Connection: close\n\n";
 
             if (!string.IsNullOrEmpty(payload))
             {
