@@ -228,7 +228,9 @@ namespace MonsterTradingCards
             return;
 
             //TODO:
+            //Eigener Thread pro Request
             //Update User Profile should fail, failed ned
+            //Update Repository sollte die Fields ned als string angeben sondern als type irgendwie
             //Battle getRandomPlayer nur wenn valid scoreboard
             //Unit/Integration tests
         }

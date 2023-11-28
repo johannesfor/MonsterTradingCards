@@ -63,7 +63,10 @@ namespace FHTW.Swen1.Swamp
                     data += Encoding.ASCII.GetString(buf, 0, n);
                 }
 
-                Incoming?.Invoke(this, new HttpSvrEventArgs(client, data));
+                new Thread(() =>
+                {
+                    Incoming?.Invoke(this, new HttpSvrEventArgs(client, data));
+                }).Start();
             }
 
             _Listener.Stop();
