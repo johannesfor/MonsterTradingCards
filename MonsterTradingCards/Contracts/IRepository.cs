@@ -2,8 +2,6 @@
 
 namespace MonsterTradingCards.Contracts;
 
-// Implementation of the Repository Design Pattern
-// Repository overview see: https://dotnettutorials.net/lesson/repository-design-pattern-csharp/
 public interface IRepository<T>
 {
 
@@ -19,5 +17,5 @@ public interface IRepository<T>
     void Update(T t, params string[] parameters);
 
     // DELETE
-    void Delete(T t);
+    void Delete(Guid id);
 }

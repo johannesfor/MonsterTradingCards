@@ -38,25 +38,25 @@ namespace MonsterTradingCards
             ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
             tradingRepository.GetAll().ToList().ForEach(trade =>
             {
-                tradingRepository.Delete(trade);
+                tradingRepository.Delete(trade.Id.Value);
             });
 
             ICardRepository cardRepository = serviceCollection.GetRequiredService<ICardRepository>();
             cardRepository.GetAll().ToList().ForEach(card =>
             {
-                cardRepository.Delete(card);
+                cardRepository.Delete(card.Id.Value);
             });
 
             IPackageRepository packageRepository = serviceCollection.GetRequiredService<IPackageRepository>();
             packageRepository.GetAll().ToList().ForEach(package =>
             {
-                packageRepository.Delete(package);
+                packageRepository.Delete(package.Id.Value);
             });
 
             IUserRepository userRepository = serviceCollection.GetRequiredService<IUserRepository>();
             userRepository.GetAll().ToList().ForEach(user =>
             {
-                userRepository.Delete(user);
+                userRepository.Delete(user.Id.Value);
             });
         }
 
@@ -228,9 +228,7 @@ namespace MonsterTradingCards
             return;
 
             //TODO:
-            //Eigener Thread pro Request
             //Update User Profile should fail, failed ned
-            //Update Repository sollte die Fields ned als string angeben sondern als type irgendwie
             //Battle getRandomPlayer nur wenn valid scoreboard
             //Unit/Integration tests
         }
@@ -254,16 +252,6 @@ namespace MonsterTradingCards
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             return serviceProvider;
-        }
-
-        static string GetValueAsString(JToken value)
-        {
-            if (value.Type == JTokenType.String)
-            {
-                return $"\"{value.ToString()}\"";
-            }
-
-            return value.ToString();
         }
     }
 }

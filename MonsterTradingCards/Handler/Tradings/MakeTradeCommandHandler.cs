@@ -31,15 +31,15 @@ namespace MonsterTradingCards.Handler.Tradings
             {
                 Id = foundTrade.CardToTrade,
                 UserId = userContext.User.Id
-            }, "user_id");
+            }, nameof(Card.UserId));
 
             cardRepository.Update(new Card()
             {
                 Id = request.CardId,
                 UserId = foundTrade.UserId
-            }, "user_id");
+            }, nameof(Card.UserId));
 
-            tradingRepository.Delete(foundTrade);
+            tradingRepository.Delete(foundTrade.Id.Value);
         }
     }
 }

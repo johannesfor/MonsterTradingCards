@@ -33,14 +33,14 @@ namespace MonsterTradingCards.Handler.Packages
                 card.UserId = userContext.User.Id;
                 card.PackageId = null;
                 card.IsInDeck = false;
-                cardRepository.Update(card, "user_id", "package_id", "is_in_deck");
+                cardRepository.Update(card, nameof(Card.UserId), nameof(Card.PackageId), nameof(Card.IsInDeck));
             });
 
-            packageRepository.Delete(packageToAquire);
+            packageRepository.Delete(packageToAquire.Id.Value);
 
             User userToUpdate = userContext.User;
             userToUpdate.Coins -= 5;
-            userRepository.Update(userToUpdate, "coins");
+            userRepository.Update(userToUpdate, nameof(User.Coins));
         }
     }
 }

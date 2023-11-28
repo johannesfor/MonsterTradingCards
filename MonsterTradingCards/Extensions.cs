@@ -21,46 +21,6 @@ namespace MonsterTradingCards
 
             command.Parameters.Add(parameter);
         }
-
-        public static int? GetNullableInt32(this IDataRecord record, int ordinal)
-        {
-            int? value = null;
-            if (!record.IsDBNull(ordinal))
-            {
-                value = record.GetInt32(ordinal);
-            }
-            return value;
-        }
-
-        public static string GetNullableString(this IDataRecord record, int ordinal)
-        {
-            string value = null;
-            if (!record.IsDBNull(ordinal))
-            {
-                value = record.GetString(ordinal);
-            }
-            return value;
-        }
-
-        public static Guid GetNullableGuid(this IDataRecord record, int ordinal)
-        {
-            Guid value = Guid.Empty;
-            if (!record.IsDBNull(ordinal))
-            {
-                value = record.GetGuid(ordinal);
-            }
-            return value;
-        }
-
-        public static string ConvertAttributesToSetSQL<T>(this IRepository<T> repository, string[] parameters)
-        {
-            StringBuilder sb = new StringBuilder();
-            parameters.ToList().ForEach(parameter => sb.AppendFormat("{0} = @{0}, ", parameter));
-            sb.Remove(sb.Length-2, 2);
-            sb.Append(" ");
-            return sb.ToString();
-        }
-
         public static string HashPassword(this string str)
         {
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(

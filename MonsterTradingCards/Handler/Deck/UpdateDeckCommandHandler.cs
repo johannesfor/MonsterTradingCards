@@ -25,7 +25,7 @@ namespace MonsterTradingCards.Handler.Deck
             cardRepository.GetAllByUserId(userContext.User.Id.Value, true).ToList().ForEach(card =>
             {
                 card.IsInDeck = false;
-                cardRepository.Update(card, "is_in_deck");
+                cardRepository.Update(card, nameof(Card.IsInDeck));
             });
 
             request.CardIds.ToList().ForEach(cardId =>
@@ -35,7 +35,7 @@ namespace MonsterTradingCards.Handler.Deck
                     Id = cardId,
                     IsInDeck = true
                 };
-                cardRepository.Update(toUpdate, "is_in_deck");
+                cardRepository.Update(toUpdate, nameof(Card.IsInDeck));
             });
         }
     }

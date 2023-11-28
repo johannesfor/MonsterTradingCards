@@ -26,7 +26,7 @@ namespace MonsterTradingCards.Handler.Users
             toUpdate.Bio = request.UserProfile.Bio;
             toUpdate.Image = request.UserProfile.Image;
 
-            userRepository.Update(toUpdate, "name", "bio", "image");
+            userRepository.Update(toUpdate, nameof(User.Name), nameof(User.Bio), nameof(User.Image));
         }
     }
 }

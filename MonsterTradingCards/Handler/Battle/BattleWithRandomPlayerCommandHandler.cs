@@ -98,8 +98,8 @@ namespace MonsterTradingCards.Handler.Battle
                 battleLog.Add("Its a draw");
             }
 
-            userRepository.Update(userContext.User, "played_games", "elo");
-            userRepository.Update(enemy, "played_games", "elo");
+            userRepository.Update(userContext.User, nameof(User.PlayedGames), nameof(User.Elo));
+            userRepository.Update(enemy, nameof(User.PlayedGames), nameof(User.Elo));
 
             return battleLog;
         }

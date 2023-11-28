@@ -21,7 +21,7 @@ namespace MonsterTradingCards.Handler.Tradings
 
         public async Task Handle(RemoveTradingCommand request, CancellationToken cancellationToken)
         {
-            tradingRepository.Delete(new Trading() { Id = request.TradeId });
+            tradingRepository.Delete(request.TradeId);
         }
     }
 }
