@@ -23,7 +23,7 @@ namespace MonsterTradingCards.Handler.Users
 
         public async Task<UserProfile> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
         {
-            User foundUser = userRepository.GetByUsername(request.UserName);
+            User foundUser = userRepository.GetByUsername(request.Username);
 
             if (foundUser == null)
                 return null;

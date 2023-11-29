@@ -14,7 +14,7 @@ namespace MonsterTradingCards.Authorization.Authorizer
     {
         public override void BuildPolicy(GetUserProfileQuery request)
         {
-            UseRequirement(new IsAuthenticatedRequirement());
+            UseRequirement(new IsUsernameEqualToUserContextRequirement() { Username = request.Username});
         }
     }
 }

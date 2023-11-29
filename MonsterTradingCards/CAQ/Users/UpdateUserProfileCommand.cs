@@ -11,5 +11,6 @@ namespace MonsterTradingCards.CAQ.Users
     public class UpdateUserProfileCommand : IRequest
     {
         public UserProfile UserProfile { get; set; }
+        public string Username { get; set; }
     }
 }

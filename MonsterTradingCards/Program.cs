@@ -56,7 +56,7 @@ namespace MonsterTradingCards
             return;
 
             //TODO:
-            //Update User Profile should fail, failed ned
+            //Excpetion Messages alle auf englisch
             //Battle getRandomPlayer nur wenn valid scoreboard
             //Unit/Integration tests
         }
@@ -91,7 +91,7 @@ namespace MonsterTradingCards
                                 break;
                             case var p when p.StartsWith("/users/"):
                                 string username = e.Path.Split("/")[2];
-                                UserProfile userProfile = mediator.Send(new GetUserProfileQuery() { UserName = username }).Result;
+                                UserProfile userProfile = mediator.Send(new GetUserProfileQuery() { Username = username }).Result;
                                 responseBody = JsonConvert.SerializeObject(userProfile);
                                 contentType = ContentType.APPLICATION_JSON;
                                 break;
@@ -161,8 +161,9 @@ namespace MonsterTradingCards
                                 mediator.Send(new UpdateDeckCommand() { CardIds = cardIds }).Wait();
                                 break;
                             case var p when p.StartsWith("/users/"):
+                                string username = e.Path.Split("/")[2];
                                 UserProfile userProfile = JsonConvert.DeserializeObject<UserProfile>(e.Payload);
-                                mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile }).Wait();
+                                mediator.Send(new UpdateUserProfileCommand() { UserProfile = userProfile, Username = username }).Wait();
                                 break;
                             default:
                                 throw new PathNotFoundException();
