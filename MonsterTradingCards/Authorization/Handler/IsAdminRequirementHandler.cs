@@ -20,11 +20,11 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsAdminRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             if (userContext.IsAdmin)
                 return AuthorizationResult.Succeed();
-            return AuthorizationResult.Fail();
+            return AuthorizationResult.Fail("You need to be admin");
         }
     }
 }

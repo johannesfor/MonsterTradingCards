@@ -21,7 +21,7 @@ namespace MonsterTradingCards.Authorization.Handler
         {
             if (userContext.User != null && userContext.User.Username == requirement.Username)
                 return AuthorizationResult.Succeed();
-            return AuthorizationResult.Fail();
+            return AuthorizationResult.Fail("You need to be logged in");
         }
     }
 }

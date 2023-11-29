@@ -25,23 +25,23 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsAddTradeValidRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             Card foundCard = cardRepository.Get(requirement.Trading.CardToTrade);
 
             if (foundCard == null)
-                return AuthorizationResult.Fail("Diese Karte existiert nicht");
+                return AuthorizationResult.Fail("This card does not exist");
 
             if (foundCard.UserId != userContext.User.Id)
-                return AuthorizationResult.Fail("Dieser Benutzer ist nicht der Besitzer dieser Karte");
+                return AuthorizationResult.Fail("This user is not the owner of this card");
 
             if (foundCard.IsInDeck)
-                return AuthorizationResult.Fail("Befindet sich derzeitig im Deck. Bitte zuerst entfernen");
+                return AuthorizationResult.Fail("Is currently in the deck. Please remove first");
 
             Trading foundTrade = tradingRepository.GetByCardId(foundCard.Id.Value);
 
             if (foundTrade != null)
-                return AuthorizationResult.Fail("Es gibt bereits einen Trade mit dieser Card");
+                return AuthorizationResult.Fail("There is already a trade with this card");
 
             return AuthorizationResult.Succeed();
         }

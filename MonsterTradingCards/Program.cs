@@ -56,8 +56,6 @@ namespace MonsterTradingCards
             return;
 
             //TODO:
-            //Den Key beim Hashen auch auslagern in die Config File
-            //Excpetion Messages alle auf englisch
             //Battle getRandomPlayer nur wenn valid scoreboard
             //Unit/Integration tests
         }

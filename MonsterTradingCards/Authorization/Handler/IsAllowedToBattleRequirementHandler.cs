@@ -23,12 +23,12 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsAllowedToBattleRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             IEnumerable<Card> deckOfUser = cardRepository.GetAllByUserId(userContext.User.Id.Value, true);
 
             if (!deckOfUser.Any())
-                return AuthorizationResult.Fail("Der User hat kein konfiguriertes Deck und kann somit nicht batteln");
+                return AuthorizationResult.Fail("The user does not have a configured deck and therefore cannot battle");
 
             return AuthorizationResult.Succeed();
         }

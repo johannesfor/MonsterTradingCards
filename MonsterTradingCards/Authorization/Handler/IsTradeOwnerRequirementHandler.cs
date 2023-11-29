@@ -23,15 +23,15 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsTradeOwnerRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             Trading foundTrade = tradingRepository.Get(requirement.TradeId);
 
             if (foundTrade == null)
-                return AuthorizationResult.Fail("Trade nicht gefunden");
+                return AuthorizationResult.Fail("Trade not found");
 
             if (foundTrade.UserId != userContext.User.Id)
-                return AuthorizationResult.Fail("Dieser Benutzer ist nicht der Besitzer des Trades");
+                return AuthorizationResult.Fail("This user is not the owner of the trade");
 
             return AuthorizationResult.Succeed();
         }

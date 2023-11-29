@@ -25,28 +25,28 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsMakeTradeValideRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             Trading foundTrade = tradingRepository.Get(requirement.TradeId);
             Card foundCard = cardRepository.Get(requirement.CardId);
 
             if (foundCard == null)
-                return AuthorizationResult.Fail("Diese Karte existiert nicht");
+                return AuthorizationResult.Fail("This card does not exist");
 
             if (foundTrade == null)
-                return AuthorizationResult.Fail("Dieser Trade existiert nicht");
+                return AuthorizationResult.Fail("This trade does not exist");
 
             if (foundCard.UserId != userContext.User.Id)
-                return AuthorizationResult.Fail("Nicht der Benutzer der Karte");
+                return AuthorizationResult.Fail("Not the user of the card");
 
             if (foundCard.IsInDeck)
-                return AuthorizationResult.Fail("Karte ist derzeitig im Deck");
+                return AuthorizationResult.Fail("Card is currently in the deck. Please remove first");
 
             if (foundTrade.UserId == userContext.User.Id)
-                return AuthorizationResult.Fail("Mit sich selber darf nicht gehandelt werden");
+                return AuthorizationResult.Fail("It is not allowed to trade with yourself");
 
             if (foundTrade.MinimumDamage > foundCard.Damage || foundTrade.Type != foundCard.CardType)
-                return AuthorizationResult.Fail("Die von dir angebotene Karte entspricht nicht den Requirements");
+                return AuthorizationResult.Fail("The card you offer does not meet the requirements");
 
             return AuthorizationResult.Succeed();
         }

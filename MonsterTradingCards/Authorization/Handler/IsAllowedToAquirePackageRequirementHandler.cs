@@ -23,14 +23,14 @@ namespace MonsterTradingCards.Authorization.Handler
         public async Task<AuthorizationResult> Handle(IsAllowedToAquirePackageRequirement requirement, CancellationToken cancellationToken = default)
         {
             if (userContext.User == null)
-                return AuthorizationResult.Fail();
+                return AuthorizationResult.Fail("You need to be logged in");
 
             if (userContext.User.Coins < 5)
-                return AuthorizationResult.Fail("Zu wenig Coins");
+                return AuthorizationResult.Fail("Not enough coins");
 
             IEnumerable<Package> allPackages = packageRepository.GetAll();
             if (!allPackages.Any())
-                return AuthorizationResult.Fail("Es sind keine Packages verfügbar welche erworben werden können");
+                return AuthorizationResult.Fail("There are no packages available which can be purchased");
             return AuthorizationResult.Succeed();
         }
     }
