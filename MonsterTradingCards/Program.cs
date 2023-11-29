@@ -54,10 +54,6 @@ namespace MonsterTradingCards
             svr.Run();
 
             return;
-
-            //TODO:
-            //Battle getRandomPlayer nur wenn valid scoreboard
-            //Unit/Integration tests
         }
 
         private static void _ProcessMesage(object sender, HttpSvrEventArgs e)
