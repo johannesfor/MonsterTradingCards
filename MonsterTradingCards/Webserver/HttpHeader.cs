@@ -2,7 +2,7 @@
 
 
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCards.Webserver
 {
     /// <summary>This class represents a HTTP header.</summary>
     public class HttpHeader

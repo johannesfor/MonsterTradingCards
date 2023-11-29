@@ -5,7 +5,7 @@ using System.Text;
 
 
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCards.Webserver
 {
     /// <summary>This class implements a HTTP server.</summary>
     public sealed class HttpSvr

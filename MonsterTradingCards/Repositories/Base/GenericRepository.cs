@@ -15,7 +15,7 @@ namespace MonsterTradingCards.Repositories.Base
 
         public GenericRepository(string connectionString)
         {
-            connectionString = connectionString;
+            this.connectionString = connectionString;
 
             PropertyInfo? foundPrimaryKey = typeof(T).GetProperties().FirstOrDefault(property => IsPrimaryKey(property.Name));
             if (foundPrimaryKey == null)

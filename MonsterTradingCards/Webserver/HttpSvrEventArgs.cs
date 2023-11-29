@@ -9,7 +9,7 @@ using System.Text;
 
 
 
-namespace FHTW.Swen1.Swamp
+namespace MonsterTradingCards.Webserver
 {
     /// <summary>This class provides HTTP server event arguments.</summary>
     public class HttpSvrEventArgs: EventArgs
