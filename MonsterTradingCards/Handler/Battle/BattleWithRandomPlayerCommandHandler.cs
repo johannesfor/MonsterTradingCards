@@ -27,8 +27,12 @@ namespace MonsterTradingCards.Handler.Battle
         {
             List<string> battleLog = new List<string>();
 
-            //TODO: Get Random User with VALID Deck
-            User enemy = userRepository.GetRandom();
+            User enemy = userRepository.GetRandomUserWithValidDeck();
+            if (enemy == null)
+            {
+                battleLog.Add("No enemy found");
+                return battleLog;
+            }
             battleLog.Add(String.Format("Your enemy is {0}", enemy.Name));
 
             List<Card> cardsOfEnemy = cardRepository.GetAllByUserId(enemy.Id.Value, true).ToList();

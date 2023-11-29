@@ -10,6 +10,6 @@ namespace MonsterTradingCards.Contracts
     public interface IUserRepository : IRepository<User>
     {
         User GetByUsername(string username);
-        User GetRandom();
+        User GetRandomUserWithValidDeck();
     }
 }

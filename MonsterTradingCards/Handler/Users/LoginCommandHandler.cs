@@ -26,8 +26,6 @@ namespace MonsterTradingCards.Handler.Users
             if (foundUser.Password != request.Password.HashPassword())
                 throw new ArgumentException("Invalid password");
 
-            //TODO: Eigentlich muss hier ein richtiger JWT Token erstellt werden mittels Secret. Inhalt ist der Benutzername.
-            //Aufgrund des vorgegeben Curl-Skripts kann ich das leider nicht machen
             return foundUser.Username + "-mtcgToken";
         }
     }

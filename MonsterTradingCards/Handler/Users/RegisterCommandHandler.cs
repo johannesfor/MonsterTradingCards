@@ -35,8 +35,6 @@ namespace MonsterTradingCards.Handler.Users
 
             userRepository.Add(user);
 
-            //TODO: Eigentlich muss hier ein richtiger JWT Token erstellt werden mittels Secret. Inhalt ist der Benutzername.
-            //Aufgrund des vorgegeben Curl-Skripts kann ich das leider nicht machen
             return user.Username + "-mtcgToken";
         }
     }

@@ -19,7 +19,7 @@ namespace MonsterTradingCards.Repositories
         {
         }
 
-        public User GetRandom()
+        public User GetRandomUserWithValidDeck()
         {
             using (IDbConnection connection = new NpgsqlConnection(connectionString))
             {
@@ -29,7 +29,14 @@ namespace MonsterTradingCards.Repositories
 
                     PropertyInfo[] properties = typeof(User).GetProperties().Where(property => GetColumnName(property.Name) != null).ToArray();
                     var fieldNames = string.Join(", ", properties.Select(property => GetColumnName(property.Name)));
-                    command.CommandText = $"SELECT {fieldNames} FROM {GetEntityName()} ORDER BY random() LIMIT 1";
+                    command.CommandText = $@"SELECT u.{fieldNames} FROM {GetEntityName()} u 
+                                        INNER JOIN (
+                                            SELECT user_id, COUNT(*) AS card_count
+                                            FROM card
+                                            WHERE is_in_deck = true
+                                            GROUP BY user_id
+                                            HAVING COUNT(*) = 4) c ON u.id = c.user_id
+                                        ORDER BY random() LIMIT 1";
 
                     using (IDataReader reader = command.ExecuteReader())
                     {
