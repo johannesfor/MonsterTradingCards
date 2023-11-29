@@ -2,6 +2,7 @@
 using MonsterTradingCards.Contracts;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
@@ -12,6 +13,7 @@ namespace MonsterTradingCards
 {
     public static class Extensions
     {
+        private static string salt = ConfigurationManager.AppSettings["HashSalt"];
         public static void AddParameterWithValue(this IDbCommand command, string parameterName, DbType type, object value)
         {
             var parameter = command.CreateParameter();
@@ -25,7 +27,7 @@ namespace MonsterTradingCards
         {
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                     password: str,
-                    salt: Encoding.ASCII.GetBytes("Jf9!87_44/fh"),
+                    salt: Encoding.ASCII.GetBytes(salt),
                     prf: KeyDerivationPrf.HMACSHA256,
                     iterationCount: 100000,
                     numBytesRequested: 256 / 8));
