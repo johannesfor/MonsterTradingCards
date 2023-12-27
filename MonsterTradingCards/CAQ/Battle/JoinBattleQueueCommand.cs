@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards.CAQ.Battle
 {
-    public class BattleWithRandomPlayerCommand : IRequest<IEnumerable<string>>
+    public class JoinBattleQueueCommand : IRequest<IEnumerable<string>>
     {
     }
 }

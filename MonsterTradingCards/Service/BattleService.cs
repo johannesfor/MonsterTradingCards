@@ -1,7 +1,4 @@
-﻿using MediatR;
-using MonsterTradingCards.CAQ.Battle;
-using MonsterTradingCards.CAQ.Cards;
-using MonsterTradingCards.Contracts;
+﻿using MonsterTradingCards.Contracts;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;
@@ -9,62 +6,81 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.Handler.Battle
+namespace MonsterTradingCards.Service
 {
-    public class BattleWithRandomPlayerCommandHandler : IRequestHandler<BattleWithRandomPlayerCommand, IEnumerable<string>>
+    public class BattleService : IBattleService
     {
         private ICardRepository cardRepository;
-        private IUserContext userContext;
         private IUserRepository userRepository;
-        public BattleWithRandomPlayerCommandHandler(ICardRepository cardRepository, IUserContext userContext, IUserRepository userRepository)
+        private static Queue<BattleTask> queue = new Queue<BattleTask>();
+        public BattleService(ICardRepository cardRepository, IUserRepository userRepository)
         {
             this.cardRepository = cardRepository;
-            this.userContext = userContext;
             this.userRepository = userRepository;
         }
 
-        public async Task<IEnumerable<string>> Handle(BattleWithRandomPlayerCommand request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<string>> JoinQueueForBattle(Guid userId)
+        {
+            if (queue.Any())
+            {
+                BattleTask enemyUser = queue.Dequeue();
+                IEnumerable<string> battleLog = Battle(userId, enemyUser.UserId);
+                enemyUser.Log = battleLog;
+                enemyUser.Task.SetResult(true);
+                return battleLog;
+            }
+            else
+            {
+                BattleTask battleTask = new BattleTask()
+                {
+                    Task = new TaskCompletionSource<bool>(),
+                    UserId = userId
+                };
+                queue.Enqueue(battleTask);
+                await battleTask.Task.Task;
+                return battleTask.Log;
+                //Wait and return the same battle log
+            }
+        }
+
+        private IEnumerable<string> Battle(Guid userAId, Guid userBId)
         {
             List<string> battleLog = new List<string>();
 
-            User enemy = userRepository.GetRandomUserWithValidDeck();
-            if (enemy == null)
-            {
-                battleLog.Add("No enemy found");
-                return battleLog;
-            }
-            battleLog.Add(String.Format("Your enemy is {0}", enemy.Name));
+            User userA = userRepository.Get(userAId);
+            User userB = userRepository.Get(userBId);
+            battleLog.Add(String.Format("{0} fights against {1}", userA.Name, userB.Name));
 
-            List<Card> cardsOfEnemy = cardRepository.GetAllByUserId(enemy.Id.Value, true).ToList();
-            List<Card> cardsOfUser = cardRepository.GetAllByUserId(userContext.User.Id.Value, true).ToList();
+            List<Card> cardsOfUserA = cardRepository.GetAllByUserId(userA.Id.Value, true).ToList();
+            List<Card> cardsOfUserB = cardRepository.GetAllByUserId(userB.Id.Value, true).ToList();
 
             int roundCount = 1;
 
-            while (roundCount <= 100 && !(!cardsOfUser.Any() || !cardsOfEnemy.Any()))
+            while (roundCount <= 100 && !(!cardsOfUserA.Any() || !cardsOfUserB.Any()))
             {
-                Card cardOfEnemy = cardsOfEnemy.RandomElement();
-                Card cardOfUser = cardsOfUser.RandomElement();
+                Card cardOfEnemy = cardsOfUserB.RandomElement();
+                Card cardOfUser = cardsOfUserA.RandomElement();
 
-                battleLog.Add(String.Format("Round {0}: Your {1} is fighting against {2}", roundCount, cardOfUser.Name, cardOfEnemy.Name));
+                battleLog.Add(String.Format("Round {0}: {1} (from {3}) is fighting against {2} (from {4})", roundCount, cardOfUser.Name, cardOfEnemy.Name, userA.Name, userB.Name));
 
                 double damageMadeByEnemy = CalculateDamage(cardOfEnemy, cardOfUser);
                 double damageMadeByUser = CalculateDamage(cardOfUser, cardOfEnemy);
 
-                battleLog.Add(String.Format("Round {0}: Damage made by you: {1}; Damage made by your enemy: {2}", roundCount, damageMadeByUser, damageMadeByEnemy));
+                battleLog.Add(String.Format("Round {0}: Damage made by {3}: {1}; Damage made by {4}: {2}", roundCount, damageMadeByUser, damageMadeByEnemy, userA.Name, userB.Name));
 
                 if (damageMadeByEnemy < damageMadeByUser)
                 {
-                    cardsOfEnemy.Remove(cardOfEnemy);
-                    cardsOfUser.Add(cardOfEnemy);
+                    cardsOfUserB.Remove(cardOfEnemy);
+                    cardsOfUserA.Add(cardOfEnemy);
 
-                    battleLog.Add(String.Format("Round {0}: You won the round", roundCount));
+                    battleLog.Add(String.Format("Round {0}: {1} won the round", roundCount, userA.Name));
                 }
-                else if(damageMadeByEnemy > damageMadeByUser)
+                else if (damageMadeByEnemy > damageMadeByUser)
                 {
-                    cardsOfUser.Remove(cardOfUser);
-                    cardsOfEnemy.Add(cardOfUser);
+                    cardsOfUserA.Remove(cardOfUser);
+                    cardsOfUserB.Add(cardOfUser);
 
-                    battleLog.Add(String.Format("Round {0}: You lost the round", roundCount));
+                    battleLog.Add(String.Format("Round {0}: {1} won the round", roundCount, userB.Name));
                 }
                 else
                 {
@@ -75,35 +91,35 @@ namespace MonsterTradingCards.Handler.Battle
 
             battleLog.Add("Battle finished");
 
-            if(!cardsOfUser.Any())
+            if (!cardsOfUserA.Any())
             {
-                enemy.PlayedGames++;
-                enemy.Elo += 3;
+                userB.PlayedGames++;
+                userB.Elo += 3;
 
-                userContext.User.PlayedGames++;
-                userContext.User.Elo -= 5;
+                userA.PlayedGames++;
+                userA.Elo -= 5;
 
-                battleLog.Add(String.Format("You lost the battle against {0}", enemy.Name));
+                battleLog.Add(String.Format("{0} won the battle against {1}", userB.Name, userA.Name));
             }
-            else if(!cardsOfEnemy.Any())
+            else if (!cardsOfUserB.Any())
             {
-                enemy.PlayedGames++;
-                enemy.Elo -= 5;
+                userB.PlayedGames++;
+                userB.Elo -= 5;
 
-                userContext.User.PlayedGames++;
-                userContext.User.Elo += 3;
+                userA.PlayedGames++;
+                userA.Elo += 3;
 
-                battleLog.Add(String.Format("You won the battle against {0}", enemy.Name));
+                battleLog.Add(String.Format("{0} won the battle against {1}", userA.Name, userB.Name));
             }
             else
             {
-                enemy.PlayedGames++;
-                userContext.User.PlayedGames++;
+                userB.PlayedGames++;
+                userA.PlayedGames++;
                 battleLog.Add("Its a draw");
             }
 
-            userRepository.Update(userContext.User, nameof(User.PlayedGames), nameof(User.Elo));
-            userRepository.Update(enemy, nameof(User.PlayedGames), nameof(User.Elo));
+            userRepository.Update(userA, nameof(User.PlayedGames), nameof(User.Elo));
+            userRepository.Update(userB, nameof(User.PlayedGames), nameof(User.Elo));
 
             return battleLog;
         }

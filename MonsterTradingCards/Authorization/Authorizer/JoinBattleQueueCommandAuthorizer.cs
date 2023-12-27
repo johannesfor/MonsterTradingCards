@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards.Authorization.Authorizer
 {
-    public class BattleWithRandomPlayerCommandAuthorizer : AbstractRequestAuthorizer<BattleWithRandomPlayerCommand>
+    public class JoinBattleQueueCommandAuthorizer : AbstractRequestAuthorizer<JoinBattleQueueCommand>
     {
-        public override void BuildPolicy(BattleWithRandomPlayerCommand request)
+        public override void BuildPolicy(JoinBattleQueueCommand request)
         {
             UseRequirement(new IsAllowedToBattleRequirement());
         }

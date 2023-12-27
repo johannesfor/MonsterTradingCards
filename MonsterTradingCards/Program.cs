@@ -27,6 +27,7 @@ using MonsterTradingCards.CAQ.Battle;
 using MonsterTradingCards.Webserver;
 using System.Configuration;
 using System.Xml.Linq;
+using MonsterTradingCards.Service;
 
 namespace MonsterTradingCards
 {
@@ -140,7 +141,7 @@ namespace MonsterTradingCards
                                 mediator.Send(new MakeTradeCommand() { CardId = cardId, TradeId = Guid.Parse(e.Path.Split("/")[2]) }).Wait();
                                 break;
                             case "/battles":
-                                IEnumerable<string> battleLog = mediator.Send(new BattleWithRandomPlayerCommand()).Result;
+                                IEnumerable<string> battleLog = mediator.Send(new JoinBattleQueueCommand()).Result;
                                 responseBody = JsonConvert.SerializeObject(battleLog);
                                 contentType = ContentType.APPLICATION_JSON;
                                 break;
@@ -205,6 +206,7 @@ namespace MonsterTradingCards
                 .AddScoped<ICardRepository>(_ => new CardRepository(_connectionString))
                 .AddScoped<ITradingRepository>(_ => new TradingRepository(_connectionString))
                 .AddScoped<IUserContextFactory, UserContextFactory>()
+                .AddScoped<IBattleService, BattleService>()
                 .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly))
                 .AddMediatorAuthorization(Assembly.GetExecutingAssembly())
                 .AddScoped<IUserContext>((serviceProvider) =>
