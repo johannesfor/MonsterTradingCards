@@ -45,7 +45,7 @@ namespace MonsterTradingCards
             bool clearDBOnStartup = Convert.ToBoolean(ConfigurationManager.AppSettings["ClearDBOnStartup"]);
             if (clearDBOnStartup)
             {
-                ServiceProvider serviceProvider = SetupDepencyInjection(null);
+                ServiceProvider serviceProvider = SetupDepencyInjection(null, _connectionString);
                 ClearDB(serviceProvider);
             }
 
@@ -62,7 +62,7 @@ namespace MonsterTradingCards
             Console.WriteLine(e.PlainMessage);
 
             string? authorizationToken = e.Headers.FirstOrDefault(header => header.Name.Equals("Authorization"))?.Value;
-            ServiceProvider serviceProvider = SetupDepencyInjection(authorizationToken);
+            ServiceProvider serviceProvider = SetupDepencyInjection(authorizationToken, _connectionString);
             var mediator = serviceProvider.GetRequiredService<IMediator>();
 
             string responseBody = null;
@@ -198,13 +198,13 @@ namespace MonsterTradingCards
             }
         }
 
-        static ServiceProvider SetupDepencyInjection(string? authorizationToken)
+        public static ServiceProvider SetupDepencyInjection(string? authorizationToken, string connectionString)
         {
             var serviceCollection = new ServiceCollection()
-                .AddScoped<IUserRepository>(_ => new UserRepository(_connectionString))
-                .AddScoped<IPackageRepository>(_ => new PackageRepository(_connectionString))
-                .AddScoped<ICardRepository>(_ => new CardRepository(_connectionString))
-                .AddScoped<ITradingRepository>(_ => new TradingRepository(_connectionString))
+                .AddScoped<IUserRepository>(_ => new UserRepository(connectionString))
+                .AddScoped<IPackageRepository>(_ => new PackageRepository(connectionString))
+                .AddScoped<ICardRepository>(_ => new CardRepository(connectionString))
+                .AddScoped<ITradingRepository>(_ => new TradingRepository(connectionString))
                 .AddScoped<IUserContextFactory, UserContextFactory>()
                 .AddScoped<IBattleService, BattleService>()
                 .AddScoped<IUserSessionService, UserSessionService>()
