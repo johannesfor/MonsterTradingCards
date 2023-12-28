@@ -11,19 +11,21 @@ namespace MonsterTradingCards.Factory
     public class UserContextFactory : IUserContextFactory
     {
         private readonly IUserRepository userRepository;
+        private readonly IUserSessionService userSessionService;
 
-        public UserContextFactory(IUserRepository userRepository)
+        public UserContextFactory(IUserRepository userRepository, IUserSessionService userSessionService)
         {
             this.userRepository = userRepository;
+            this.userSessionService = userSessionService;
         }
 
         public IUserContext Create(string authorizationToken)
         {
-            //Normalerweise würde dieser eigentliche JWT Token, die Email enthalten und wäre signiert mit einem privaten Key, umso sicherzustellen, dass niemand den Token gefaked hat
-            //Aufgrund des vorgegeben CURL-Skripts von der Angabe ist das hardcoded
-            if (authorizationToken != null)
+            string tokenWithoutBearer = authorizationToken?.Split(" ")?[1];
+
+            if (userSessionService.IsTokenValid(tokenWithoutBearer))
             {
-                User foundUser = userRepository.GetByUsername(authorizationToken.Split(" ")[1].Split("-")[0]);
+                User foundUser = userRepository.GetByUsername(userSessionService.GetUsernameByToken(tokenWithoutBearer));
                 if (foundUser != null)
                     return new UserContext() { User = foundUser, IsAdmin = foundUser.Username.Equals("admin") };
             }

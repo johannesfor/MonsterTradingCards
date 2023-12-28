@@ -14,8 +14,11 @@ namespace MonsterTradingCards.Handler.Users
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, string>
     {
         private IUserRepository userRepository;
-        public RegisterCommandHandler(IUserRepository userRepository) {
+        private IUserSessionService userSessionService;
+        public RegisterCommandHandler(IUserRepository userRepository, IUserSessionService userSessionService)
+        {
             this.userRepository = userRepository;
+            this.userSessionService = userSessionService;
         }
         public async Task<string> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
@@ -35,7 +38,7 @@ namespace MonsterTradingCards.Handler.Users
 
             userRepository.Add(user);
 
-            return user.Username + "-mtcgToken";
+            return userSessionService.CreateSession(user.Username);
         }
     }
 }

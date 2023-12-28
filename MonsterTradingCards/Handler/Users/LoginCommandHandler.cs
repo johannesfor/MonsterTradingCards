@@ -13,9 +13,11 @@ namespace MonsterTradingCards.Handler.Users
     public class LoginCommandHandler : IRequestHandler<LoginCommand, string>
     {
         private IUserRepository userRepository;
-        public LoginCommandHandler(IUserRepository userRepository)
+        private IUserSessionService userSessionService;
+        public LoginCommandHandler(IUserRepository userRepository, IUserSessionService userSessionService)
         {
             this.userRepository = userRepository;
+            this.userSessionService = userSessionService;
         }
         public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
@@ -26,7 +28,7 @@ namespace MonsterTradingCards.Handler.Users
             if (foundUser.Password != request.Password.HashPassword())
                 throw new ArgumentException("Invalid password");
 
-            return foundUser.Username + "-mtcgToken";
+            return userSessionService.CreateSession(foundUser.Username);
         }
     }
 }

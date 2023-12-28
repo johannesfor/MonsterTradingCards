@@ -207,6 +207,7 @@ namespace MonsterTradingCards
                 .AddScoped<ITradingRepository>(_ => new TradingRepository(_connectionString))
                 .AddScoped<IUserContextFactory, UserContextFactory>()
                 .AddScoped<IBattleService, BattleService>()
+                .AddScoped<IUserSessionService, UserSessionService>()
                 .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly))
                 .AddMediatorAuthorization(Assembly.GetExecutingAssembly())
                 .AddScoped<IUserContext>((serviceProvider) =>
