@@ -9,5 +9,6 @@ namespace MonsterTradingCards.Contracts.Service
     public interface IBattleService
     {
         Task<IEnumerable<string>> JoinQueueForBattle(Guid userId);
+        bool CheckIfUserIsAlreadyInQueue(Guid userId);
     }
 }

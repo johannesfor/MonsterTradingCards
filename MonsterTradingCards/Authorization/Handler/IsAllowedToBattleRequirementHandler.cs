@@ -2,6 +2,7 @@
 using MonsterTradingCards.Authorization.Requirement;
 using MonsterTradingCards.Contracts.Factory;
 using MonsterTradingCards.Contracts.Repository;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;
@@ -15,11 +16,13 @@ namespace MonsterTradingCards.Authorization.Handler
     {
         private readonly IUserContext userContext;
         private readonly ICardRepository cardRepository;
+        private readonly IBattleService battleService;
 
-        public IsAllowedToBattleRequirementHandler(IUserContext userContext, ICardRepository cardRepository)
+        public IsAllowedToBattleRequirementHandler(IUserContext userContext, ICardRepository cardRepository, IBattleService battleService)
         {
             this.userContext = userContext;
             this.cardRepository = cardRepository;
+            this.battleService = battleService;
         }
         public async Task<AuthorizationResult> Handle(IsAllowedToBattleRequirement requirement, CancellationToken cancellationToken = default)
         {
@@ -30,6 +33,9 @@ namespace MonsterTradingCards.Authorization.Handler
 
             if (!deckOfUser.Any())
                 return AuthorizationResult.Fail("The user does not have a configured deck and therefore cannot battle");
+
+            if (battleService.CheckIfUserIsAlreadyInQueue(userContext.User.Id.Value))
+                return AuthorizationResult.Fail("You are already in queue");
 
             return AuthorizationResult.Succeed();
         }

@@ -239,6 +239,12 @@ namespace MonsterTradingCards
 
         public static void ClearDB(ServiceProvider serviceCollection)
         {
+            ILootboxRepository lootboxRepository = serviceCollection.GetRequiredService<ILootboxRepository>();
+            lootboxRepository.GetAll().ToList().ForEach(lootbox =>
+            {
+                lootboxRepository.Delete(lootbox.Id.Value);
+            });
+
             ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
             tradingRepository.GetAll().ToList().ForEach(trade =>
             {

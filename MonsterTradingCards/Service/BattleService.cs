@@ -211,5 +211,10 @@ namespace MonsterTradingCards.Service
 
             return 1;
         }
+
+        public bool CheckIfUserIsAlreadyInQueue(Guid userId)
+        {
+            return queue.Any(user => user.UserId == userId);
+        }
     }
 }
