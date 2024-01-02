@@ -29,5 +29,9 @@ Der Gewinner eines Battles erhält eine Lootbox, welche eine zufällige Seltenhe
 Der User kann sich seine Lootboxen ausgeben und seine öffnen.
 Beim Öffnen einer Lootbox wird eine neue Karte für den User generiert. Die Seltenheit beeinflusst den Schaden beim Erstellen der Karte.
 
+# Lessons-learned
+Mein Fehler war, dass ich relativ schnell angefangen habe zu implementieren, bevor ich die Angabe zu 100% verstanden hatte. Dadurch musste ich relativ viel Code umschreiben.
+Beim nächsten Mal werde ich mir die Angabe genauer durchlesen, und planmäßig jeden Use und Edgecase durchgehen bevor ich mit der Implementierung starte.
+
 # Gebrauchte Zeit
 Insgesamt habe ich 46 Stunden gebraucht für diese Lösung.
