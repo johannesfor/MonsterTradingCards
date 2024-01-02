@@ -1,4 +1,6 @@
-﻿using MonsterTradingCards.Contracts;
+﻿using MonsterTradingCards.Contracts.Factory;
+using MonsterTradingCards.Contracts.Repository;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;

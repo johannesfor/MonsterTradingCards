@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using MonsterTradingCards.CAQ.Users;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Repository;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;

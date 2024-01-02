@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.Contracts
+namespace MonsterTradingCards.Contracts.Repository
 {
     public interface ICardRepository : IRepository<Card>
     {

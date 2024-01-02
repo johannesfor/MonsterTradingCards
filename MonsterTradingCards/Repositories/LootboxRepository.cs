@@ -12,27 +12,24 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCards.Repositories
 {
-    public class CardRepository : GenericRepository<Card>, ICardRepository
+    public class LootboxRepository : GenericRepository<Lootbox>, ILootboxRepository
     {
-        public CardRepository(string connectionString) : base(connectionString)
+        public LootboxRepository(string connectionString) : base(connectionString)
         {
         }
 
-        public IEnumerable<Card> GetAllByUserId(Guid userId, bool filterByIsInDeck)
+        public IEnumerable<Lootbox> GetAllByUserId(Guid userId)
         {
-            List<Card> result = new List<Card>();
+            List<Lootbox> result = new List<Lootbox>();
             using (IDbConnection connection = new NpgsqlConnection(connectionString))
             {
                 using (IDbCommand command = connection.CreateCommand())
                 {
                     connection.Open();
 
-                    PropertyInfo[] properties = typeof(Card).GetProperties().Where(property => GetColumnName(property.Name) != null).ToArray();
+                    PropertyInfo[] properties = typeof(Lootbox).GetProperties().Where(property => GetColumnName(property.Name) != null).ToArray();
                     var fieldNames = string.Join(", ", properties.Select(property => GetColumnName(property.Name)));
                     command.CommandText = $"SELECT {fieldNames} FROM {GetEntityName()} WHERE user_id = @user_id";
-
-                    if (filterByIsInDeck)
-                        command.CommandText += " AND is_in_deck = true";
 
                     var pFID = command.CreateParameter();
                     pFID.DbType = DbType.Guid;

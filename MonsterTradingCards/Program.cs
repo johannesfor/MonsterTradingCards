@@ -8,7 +8,6 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Microsoft.Extensions.Hosting;
-using MonsterTradingCards.Contracts;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 using System;
@@ -28,6 +27,10 @@ using MonsterTradingCards.Webserver;
 using System.Configuration;
 using System.Xml.Linq;
 using MonsterTradingCards.Service;
+using MonsterTradingCards.Contracts.Service;
+using MonsterTradingCards.Contracts.Repository;
+using MonsterTradingCards.Contracts.Factory;
+using MonsterTradingCards.CAQ.Lootbox;
 
 namespace MonsterTradingCards
 {
@@ -106,6 +109,11 @@ namespace MonsterTradingCards
                                 responseBody = JsonConvert.SerializeObject(tradings);
                                 contentType = ContentType.APPLICATION_JSON;
                                 break;
+                            case "/lootbox":
+                                IEnumerable<Lootbox> lootboxes = mediator.Send(new GetAllLootboxQuery()).Result;
+                                responseBody = JsonConvert.SerializeObject(lootboxes);
+                                contentType = ContentType.APPLICATION_JSON;
+                                break;
                             default:
                                 throw new PathNotFoundException();
                         }
@@ -143,6 +151,12 @@ namespace MonsterTradingCards
                             case "/battles":
                                 IEnumerable<string> battleLog = mediator.Send(new JoinBattleQueueCommand()).Result;
                                 responseBody = JsonConvert.SerializeObject(battleLog);
+                                contentType = ContentType.APPLICATION_JSON;
+                                break;
+                            case "/lootbox":
+                                Guid lootboxId = JsonConvert.DeserializeObject<Guid>(e.Payload);
+                                Card drawnCard = mediator.Send(new OpenLootboxCommand() { LootboxId = lootboxId }).Result;
+                                responseBody = JsonConvert.SerializeObject(drawnCard);
                                 contentType = ContentType.APPLICATION_JSON;
                                 break;
                             default:
@@ -205,9 +219,11 @@ namespace MonsterTradingCards
                 .AddScoped<IPackageRepository>(_ => new PackageRepository(connectionString))
                 .AddScoped<ICardRepository>(_ => new CardRepository(connectionString))
                 .AddScoped<ITradingRepository>(_ => new TradingRepository(connectionString))
+                .AddScoped<ILootboxRepository>(_ => new LootboxRepository(connectionString))
                 .AddScoped<IUserContextFactory, UserContextFactory>()
                 .AddScoped<IBattleService, BattleService>()
                 .AddScoped<IUserSessionService, UserSessionService>()
+                .AddScoped<ICardFactory, CardFactory>()
                 .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly))
                 .AddMediatorAuthorization(Assembly.GetExecutingAssembly())
                 .AddScoped<IUserContext>((serviceProvider) =>

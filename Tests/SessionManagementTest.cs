@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MonsterTradingCards;
 using MonsterTradingCards.CAQ.Battle;
 using MonsterTradingCards.CAQ.Users;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Handler.Battle;
 using MonsterTradingCards.Service;
 using System.Configuration;

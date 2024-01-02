@@ -1,4 +1,5 @@
-﻿using MonsterTradingCards.Contracts;
+﻿using MonsterTradingCards.Contracts.Repository;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,15 @@ namespace MonsterTradingCards.Service
     {
         private ICardRepository cardRepository;
         private IUserRepository userRepository;
+        private ILootboxRepository lootboxRepository;
+        private Random rd;
         private static Queue<BattleTask> queue = new Queue<BattleTask>();
-        public BattleService(ICardRepository cardRepository, IUserRepository userRepository)
+        public BattleService(ICardRepository cardRepository, IUserRepository userRepository, ILootboxRepository lootboxRepository)
         {
             this.cardRepository = cardRepository;
             this.userRepository = userRepository;
+            this.lootboxRepository = lootboxRepository;
+            rd = new Random();
         }
 
         public async Task<IEnumerable<string>> JoinQueueForBattle(Guid userId)
@@ -100,6 +105,14 @@ namespace MonsterTradingCards.Service
                 userA.Elo -= 5;
 
                 battleLog.Add(String.Format("{0} won the battle against {1}", userB.Name ?? userB.Username, userA.Name ?? userA.Username));
+
+                //Unique feature
+                lootboxRepository.Add(new Lootbox()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userB.Id,
+                    Rarity = rd.Next(10)
+                });
             }
             else if (!cardsOfUserB.Any())
             {
@@ -110,6 +123,14 @@ namespace MonsterTradingCards.Service
                 userA.Elo += 3;
 
                 battleLog.Add(String.Format("{0} won the battle against {1}", userA.Name ?? userA.Username, userB.Name ?? userB.Username));
+
+                //Unique feature
+                lootboxRepository.Add(new Lootbox()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userA.Id,
+                    Rarity = rd.Next(10)
+                });
             }
             else
             {

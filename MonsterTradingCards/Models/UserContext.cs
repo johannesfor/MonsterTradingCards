@@ -1,4 +1,4 @@
-﻿using MonsterTradingCards.Contracts;
+﻿using MonsterTradingCards.Contracts.Factory;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,6 +1,7 @@
 ﻿using MediatR.Behaviors.Authorization;
 using MonsterTradingCards.Authorization.Requirement;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Factory;
+using MonsterTradingCards.Contracts.Repository;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;

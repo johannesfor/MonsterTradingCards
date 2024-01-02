@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.Contracts
+namespace MonsterTradingCards.Contracts.Factory
 {
-    public interface IPackageRepository : IRepository<Package>
+    public interface IUserContext
     {
-        Package GetRandom();
+        public User User { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

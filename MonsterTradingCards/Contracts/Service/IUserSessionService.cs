@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCards.Contracts
+namespace MonsterTradingCards.Contracts.Service
 {
     public interface IUserSessionService
     {

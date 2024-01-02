@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MonsterTradingCards;
 using MonsterTradingCards.CAQ.Battle;
 using MonsterTradingCards.CAQ.Users;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Repository;
 using MonsterTradingCards.Models;
 using MonsterTradingCards.Service;
 using System;

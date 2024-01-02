@@ -1,4 +1,4 @@
-﻿using MonsterTradingCards.Contracts;
+﻿using MonsterTradingCards.Contracts.Repository;
 using MonsterTradingCards.Models;
 using MonsterTradingCards.Repositories.Base;
 using Npgsql;

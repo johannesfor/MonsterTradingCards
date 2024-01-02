@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MonsterTradingCards.Contracts;
+namespace MonsterTradingCards.Contracts.Repository;
 
 public interface IRepository<T>
 {

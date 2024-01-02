@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using MonsterTradingCards.CAQ.Battle;
 using MonsterTradingCards.CAQ.Cards;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Factory;
+using MonsterTradingCards.Contracts.Service;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿\c monster_trading_cards
 
+DROP TABLE IF EXISTS lootbox;
 DROP TABLE IF EXISTS trading;
 DROP TABLE IF EXISTS card;
 DROP TABLE IF EXISTS users;
@@ -46,4 +47,12 @@ create table trading (
 
 	CONSTRAINT fk_trading_card FOREIGN KEY (card_id) REFERENCES card(id),
 	CONSTRAINT fk_trading_user FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+create table lootbox (
+	id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+	rarity integer,
+	user_id UUID,
+
+	CONSTRAINT fk_lootbox_user FOREIGN KEY (user_id) REFERENCES users(id)
 );

@@ -1,7 +1,8 @@
 ﻿using MediatR;
 using MonsterTradingCards.CAQ.Deck;
 using MonsterTradingCards.CAQ.Users;
-using MonsterTradingCards.Contracts;
+using MonsterTradingCards.Contracts.Factory;
+using MonsterTradingCards.Contracts.Repository;
 using MonsterTradingCards.Models;
 using System;
 using System.Collections.Generic;
