@@ -221,7 +221,7 @@ namespace MonsterTradingCards
            return serviceProvider;
         }
 
-        static void ClearDB(ServiceProvider serviceCollection)
+        public static void ClearDB(ServiceProvider serviceCollection)
         {
             ITradingRepository tradingRepository = serviceCollection.GetRequiredService<ITradingRepository>();
             tradingRepository.GetAll().ToList().ForEach(trade =>

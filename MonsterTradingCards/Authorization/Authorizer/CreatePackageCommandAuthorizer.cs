@@ -13,7 +13,7 @@ namespace MonsterTradingCards.Authorization.Authorizer
     {
         public override void BuildPolicy(CreatePackageCommand request)
         {
-            UseRequirement(new IsAdminRequirement());
+            UseRequirement(new CreateValidPackageRequirement() { Cards = request.Cards });
         }
     }
 }

@@ -13,17 +13,20 @@ namespace MonsterTradingCards.Handler.Users
     public class GetUserStatsQueryHandler : IRequestHandler<GetUserStatsQuery, UserStats>
     {
         private IUserContext userContext;
-        public GetUserStatsQueryHandler(IUserContext userContext)
+        private IUserRepository userRepository;
+        public GetUserStatsQueryHandler(IUserContext userContext, IUserRepository userRepository)
         {
             this.userContext = userContext;
+            this.userRepository = userRepository;
         }
 
         public async Task<UserStats> Handle(GetUserStatsQuery request, CancellationToken cancellationToken)
         {
+            User user = userRepository.Get(userContext.User.Id.Value);
             return new UserStats()
             {
-                Elo = userContext.User.Elo,
-                PlayedGames = userContext.User.PlayedGames,
+                Elo = user.Elo,
+                PlayedGames = user.PlayedGames,
             };
         }
     }

@@ -27,7 +27,7 @@ namespace MonsterTradingCards
         {
             string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                     password: str,
-                    salt: Encoding.ASCII.GetBytes(salt),
+                    salt: Encoding.ASCII.GetBytes(salt ?? string.Empty),
                     prf: KeyDerivationPrf.HMACSHA256,
                     iterationCount: 100000,
                     numBytesRequested: 256 / 8));
